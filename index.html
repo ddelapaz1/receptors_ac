@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Receptors en corrent altern</title>
 <meta name="description" content="Laboratori interactiu: comportament de R, L, C i RLC sèrie en corrent altern.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +37,7 @@
 * { box-sizing: border-box; }
 html { scroll-padding-top: 64px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.6; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.6; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--v); outline-offset: 2px; border-radius: 3px; }
 var, .m { font-family: var(--f-math); font-style: italic; font-size: 1.08em; }
@@ -219,7 +224,8 @@ footer { border-top: 1px solid var(--rule); padding-block: 28px 48px; font-size:
   .play .pl { display: none; }
 }
 </style>
-
+</head>
+<body>
 <header class="top">
   <div class="top-in">
     <a class="brand" href="#inici" aria-label="Inici">
@@ -1161,3 +1167,5 @@ newQ();
 requestAnimationFrame(frame);
 })();
 </script>
+</body>
+</html>
