@@ -1,0 +1,1163 @@
+<title>Receptors en corrent altern</title>
+<meta name="description" content="Laboratori interactiu: comportament de R, L, C i RLC sèrie en corrent altern.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style>
+/* Layout: lab-notebook pages — theory column beside an instrument bench (scope + phasor screens), one bench per receptor. */
+:root {
+  --paper: #f3f6f8; --panel: #ffffff; --ink: #132030; --muted: #566578; --rule: #d5dde5; --soft: #e8eef3;
+  --v: #c06400; --i: #6a3fd2; --r: #d03636; --l: #13843c; --c: #1f5fd6; --p: #0e8478;
+  --ok: #13843c; --bad: #c42b2b;
+  /* instrument screen: same look in both themes */
+  --sc-bg: #0e171c; --sc-grid: #1f3039; --sc-axis: #3a5562; --sc-text: #8fa6b2;
+  --sc-v: #ffb23e; --sc-i: #baa3ff; --sc-r: #ff7272; --sc-l: #5fe08f; --sc-c: #6eaaff; --sc-p: #35d0bf; --sc-pn: #8a98a0; --sc-z: #e8f0f3;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --f-math: "STIX Two Text", "Cambria Math", "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e141a; --panel: #141d25; --ink: #e2eaf0; --muted: #93a3b2; --rule: #26333f; --soft: #1a2530;
+    --v: #f2a93b; --i: #ab8dff; --r: #ff7d7d; --l: #4fd483; --c: #70a9ff; --p: #3cc9b9; --ok: #4fd483; --bad: #ff7d7d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e141a; --panel: #141d25; --ink: #e2eaf0; --muted: #93a3b2; --rule: #26333f; --soft: #1a2530;
+  --v: #f2a93b; --i: #ab8dff; --r: #ff7d7d; --l: #4fd483; --c: #70a9ff; --p: #3cc9b9; --ok: #4fd483; --bad: #ff7d7d;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 64px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.6; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--v); outline-offset: 2px; border-radius: 3px; }
+var, .m { font-family: var(--f-math); font-style: italic; font-size: 1.08em; }
+.m-up { font-family: var(--f-math); font-style: normal; }
+sub { font-size: .7em; }
+
+/* top bar */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--rule); }
+.top-in { max-width: 1200px; margin: 0 auto; padding-inline: 20px; display: flex; align-items: center; gap: 16px; height: 52px; }
+.brand { font-family: var(--f-display); font-stretch: 112%; font-weight: 700; font-size: 14px; letter-spacing: .02em; white-space: nowrap; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.brand svg { flex: none; }
+.nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { text-decoration: none; font-size: 13.5px; color: var(--muted); padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
+.nav a:hover { color: var(--ink); background: var(--soft); }
+.nav a.on { color: var(--ink); background: var(--soft); font-weight: 600; }
+.play { flex: none; display: inline-flex; align-items: center; gap: 7px; font: 600 13px var(--f-body); color: var(--paper); background: var(--ink); border: 0; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+.play svg { width: 12px; height: 12px; }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: 20px; }
+
+/* hero */
+.hero { padding-block: 48px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; align-items: end; }
+.eyebrow { font: 600 12px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.02; font-stretch: 118%; font-weight: 800; letter-spacing: -.01em; margin-top: 10px; }
+.lede { font-size: 17.5px; color: var(--muted); max-width: 52ch; margin: 16px 0 0; }
+.hint { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--muted); margin-top: 18px; max-width: 52ch; }
+.hint b { color: var(--ink); font-weight: 600; }
+.minis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mini { text-decoration: none; display: grid; gap: 8px; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 10px; transition: border-color .15s, transform .15s; }
+.mini:hover { border-color: var(--muted); transform: translateY(-2px); }
+.mini canvas { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 6px; }
+.mini b { font-family: var(--f-display); font-stretch: 110%; font-size: 15px; display: block; }
+.mini span { font-size: 13px; color: var(--muted); }
+
+/* sections */
+section.sec { border-top: 1px solid var(--rule); padding-block: 56px; }
+.sec-head { display: grid; gap: 6px; margin-bottom: 28px; }
+.sec-head h2 { font-size: clamp(26px, 3.4vw, 36px); font-stretch: 112%; font-weight: 750; line-height: 1.1; }
+.num { color: var(--muted); font-family: var(--f-mono); font-size: 13px; font-weight: 600; }
+.cols { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; align-items: start; }
+.theory { max-width: 62ch; min-width: 0; }
+.theory p { margin: 0 0 14px; }
+.theory h3 { font-size: 17px; font-stretch: 105%; font-weight: 700; margin: 26px 0 8px; }
+.theory h3:first-child { margin-top: 0; }
+.theory ul { margin: 0 0 14px; padding-left: 20px; }
+.theory li { margin-bottom: 4px; }
+.key { border-left: 3px solid var(--ink); padding: 4px 0 4px 14px; font-weight: 600; margin: 0 0 14px; }
+.eqs { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; margin: 4px 0 16px; }
+.eq { font-family: var(--f-math); font-size: 21px; line-height: 1.5; white-space: nowrap; display: inline-block; }
+.eq i { font-style: italic; }
+.eq sub, .eq sup { font-style: normal; font-size: .62em; line-height: 0; }
+.eq .lab { font-family: var(--f-body); font-size: 12px; color: var(--muted); margin-left: 6px; font-style: normal; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.12; font-size: .92em; }
+.frac > span { padding: 0 .18em; }
+.frac > span + span { border-top: 1.4px solid currentColor; }
+.sqrt { display: inline-flex; align-items: stretch; }
+.sqrt > span { border-top: 1.4px solid currentColor; padding: .05em .12em 0; }
+.note { background: var(--soft); border-radius: 8px; padding: 12px 14px; font-size: 14.5px; margin: 0 0 14px; }
+.note b { font-weight: 600; }
+.tag-r { color: var(--r); } .tag-l { color: var(--l); } .tag-c { color: var(--c); } .tag-v { color: var(--v); } .tag-i { color: var(--i); }
+
+/* table */
+.tbl-wrap { overflow-x: auto; margin: 6px 0 18px; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 480px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+th { font: 600 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--soft); }
+tr:last-child td { border-bottom: 0; }
+td .eq { font-size: 17px; }
+td svg { display: block; }
+
+/* lab panel */
+.lab { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; display: grid; gap: 16px; min-width: 0; }
+.lab-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; }
+.lab-title { font: 600 12px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; background: var(--c); display: inline-block; }
+.screens { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 10px; }
+figure { margin: 0; min-width: 0; display: grid; gap: 6px; }
+figcaption { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+canvas { display: block; width: 100%; max-width: 100%; }
+canvas.scope, canvas.phasor { border-radius: 8px; background: var(--sc-bg); }
+canvas.scope { aspect-ratio: 16 / 10; cursor: ew-resize; touch-action: pan-y; }
+canvas.phasor { aspect-ratio: 1; }
+canvas.chart { aspect-ratio: 16 / 8; }
+canvas.tri { aspect-ratio: 5 / 4; }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 18px; }
+.ctl { display: grid; gap: 2px; min-width: 0; }
+.ctl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.ctl label { font-size: 13.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctl label var { color: var(--ink); font-size: 16px; margin-right: 2px; }
+.ctl-num { display: inline-flex; align-items: baseline; gap: 4px; font: 500 13px var(--f-mono); color: var(--muted); }
+.ctl-num input { width: 7ch; font: 600 14px var(--f-mono); color: var(--ink); background: transparent; border: 0; border-bottom: 1px dashed var(--rule); text-align: right; padding: 1px 0; -moz-appearance: textfield; }
+.ctl-num input::-webkit-outer-spin-button, .ctl-num input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ctl-num input:focus { border-bottom-color: var(--v); outline: none; }
+input[type=range] { width: 100%; accent-color: var(--ink); margin: 4px 0; }
+.readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 20px; border-top: 1px solid var(--rule); padding-top: 6px; }
+.ro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 7px 0; border-bottom: 1px dotted var(--rule); align-items: baseline; }
+.ro-k { font-size: 12.5px; color: var(--muted); grid-column: 1 / -1; }
+.ro-f { font-family: var(--f-math); font-size: 15.5px; min-width: 0; overflow-wrap: anywhere; }
+.ro-v { font: 600 15px var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.insight { font-size: 14.5px; border-radius: 8px; padding: 10px 12px; background: var(--soft); display: flex; gap: 10px; align-items: flex-start; }
+.insight svg { flex: none; margin-top: 3px; }
+
+/* RLC */
+.rlc-grid { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; }
+.rlc-side { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.rlc-side .controls { grid-template-columns: 1fr; }
+.rlc-main { display: grid; gap: 12px; min-width: 0; }
+.screens2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); gap: 10px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font: 600 13px var(--f-body); padding: 6px 12px; border-radius: 999px; border: 1.5px solid currentColor; }
+.badge.ind { color: var(--l); } .badge.cap { color: var(--c); } .badge.res { color: var(--r); }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { font: 500 13px var(--f-body); color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 11px; cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn.pri { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.checks { display: grid; gap: 6px; font-size: 14px; }
+.checks label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.checks input { accent-color: var(--ink); width: 16px; height: 16px; }
+.side-h { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.warn { color: var(--v); font-weight: 600; }
+.rlc-theory { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px 40px; margin-bottom: 26px; }
+.rlc-theory > div { min-width: 0; }
+
+/* quiz */
+.quiz { display: grid; gap: 14px; max-width: 820px; }
+.quiz-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.score { font: 500 14px var(--f-mono); color: var(--muted); }
+.score b { color: var(--ink); }
+.q-card { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 22px; display: grid; gap: 16px; }
+.q-tag { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.q-prompt { font-size: 18px; margin: 0; max-width: 62ch; }
+.q-opts { display: grid; gap: 8px; }
+.q-opt { text-align: left; font: 400 15.5px var(--f-body); color: var(--ink); background: var(--paper); border: 1.5px solid var(--rule); border-radius: 8px; padding: 10px 14px; cursor: pointer; }
+.q-opt:hover:not(:disabled) { border-color: var(--muted); }
+.q-opt:disabled { cursor: default; }
+.q-opt.ok { border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.q-opt.no { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.q-fields { display: grid; gap: 10px; }
+.q-field { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: var(--f-math); font-size: 19px; }
+.q-field > span:first-child { min-width: 3.2em; }
+.q-field input { font: 600 16px var(--f-mono); width: 9ch; padding: 6px 8px; border: 1.5px solid var(--rule); border-radius: 6px; background: var(--paper); color: var(--ink); }
+.q-field input.ok { border-color: var(--ok); } .q-field input.no { border-color: var(--bad); }
+.q-field .u { font-family: var(--f-mono); font-size: 14px; color: var(--muted); }
+.q-field .mark { font: 500 13.5px var(--f-body); }
+.mark.ok { color: var(--ok); } .mark.no { color: var(--bad); }
+.q-fb { background: var(--soft); border-radius: 8px; padding: 12px 14px; font-size: 15px; }
+.q-fb .eqline { font-family: var(--f-math); font-size: 17px; margin: 4px 0; overflow-wrap: anywhere; }
+.q-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.page[hidden] { display: none !important; }
+section.sec { border-top: 0; padding-block: 36px 28px; }
+.toc-sec { padding-block: 8px 48px; display: grid; gap: 12px; }
+.toc { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.toc a { display: grid; gap: 2px; height: 100%; text-decoration: none; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; transition: border-color .15s; }
+.toc a:hover { border-color: var(--muted); }
+.toc b { font-family: var(--f-display); font-stretch: 108%; font-size: 17px; }
+.toc a > span:last-child { font-size: 14px; color: var(--muted); }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px solid var(--rule); padding-block: 24px 8px; margin-top: 36px; }
+.pager a { text-decoration: none; display: grid; gap: 2px; border: 1px solid var(--rule); border-radius: 10px; padding: 12px 16px; background: var(--panel); min-width: 0; }
+.pager a:hover { border-color: var(--muted); }
+.pager a.next { text-align: right; grid-column: 2; }
+.pager small { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.pager b { font-family: var(--f-display); font-stretch: 108%; font-size: 16px; }
+footer { border-top: 1px solid var(--rule); padding-block: 28px 48px; font-size: 13.5px; color: var(--muted); }
+
+@media (max-width: 960px) {
+  .hero, .cols { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .rlc-grid { grid-template-columns: minmax(0, 1fr); }
+  .rlc-side .controls { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+}
+@media (max-width: 620px) {
+  .screens, .screens2 { grid-template-columns: minmax(0, 1fr); }
+  canvas.phasor { max-width: 340px; justify-self: center; width: 100%; }
+  canvas.tri { max-width: 340px; justify-self: center; width: 100%; }
+  .minis { gap: 8px; }
+  .mini { padding: 7px; }
+  .mini span { font-size: 11.5px; }
+  .q-card { padding: 16px; }
+  .brand .bt { display: none; }
+  .play .pl { display: none; }
+}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#inici" aria-label="Inici">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 11c1.5-4.5 4.5-4.5 6 0s4.5 4.5 6 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span class="bt">Receptors CA</span>
+    </a>
+    <nav class="nav" aria-label="Seccions">
+      <a href="#impedancia">Impedància</a>
+      <a href="#resistiu">Resistiu</a>
+      <a href="#inductiu">Inductiu</a>
+      <a href="#capacitiu">Capacitiu</a>
+      <a href="#rlc">RLC sèrie</a>
+      <a href="#practica">Practica</a>
+    </nav>
+    <button class="play" id="play" type="button" aria-pressed="true"><svg viewBox="0 0 12 12" aria-hidden="true"></svg><span class="pl">Atura</span></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="page" id="inici" data-title="Inici">
+<section class="hero">
+  <div>
+    <div class="eyebrow">1.3 · Electrotècnia</div>
+    <h1>Receptors en corrent altern</h1>
+    <p class="lede">Una resistència, una bobina i un condensador reaccionen de manera diferent davant d’una tensió alterna. Mou els controls, observa l’oscil·loscopi i el diagrama de fasors, i després posa’t a prova.</p>
+    <p class="hint"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 9h14M5 6 2 9l3 3M13 6l3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Arrossega sobre qualsevol oscil·loscopi</b> per aturar el temps en un instant concret. Els fasors giren amb el cursor: la seva projecció vertical és el valor instantani.</span></p>
+  </div>
+  <div class="minis">
+    <a class="mini" href="#resistiu"><canvas class="mini-cv" data-kind="r" aria-label="Tensió i intensitat en fase"></canvas><div><b>Resistiu</b><span>v i i en fase · φ = 0°</span></div></a>
+    <a class="mini" href="#inductiu"><canvas class="mini-cv" data-kind="l" aria-label="Intensitat endarrerida 90 graus"></canvas><div><b>Inductiu</b><span>i endarrerida 90°</span></div></a>
+    <a class="mini" href="#capacitiu"><canvas class="mini-cv" data-kind="c" aria-label="Intensitat avançada 90 graus"></canvas><div><b>Capacitiu</b><span>i avançada 90°</span></div></a>
+  </div>
+</section>
+<section class="toc-sec">
+  <div class="eyebrow">Apartats</div>
+  <ol class="toc">
+    <li><a href="#impedancia"><span class="num">1.3</span><b>Impedància</b><span>Què és, com es mesura i com varia amb la freqüència.</span></a></li>
+    <li><a href="#resistiu"><span class="num">1.3.1</span><b>Circuit resistiu pur</b><span>Llei d’Ohm, tensió i intensitat en fase, potència activa.</span></a></li>
+    <li><a href="#inductiu"><span class="num">1.3.2</span><b>Circuit inductiu pur</b><span>Reactància inductiva, intensitat endarrerida 90°, potència reactiva.</span></a></li>
+    <li><a href="#capacitiu"><span class="num">1.3.3</span><b>Circuit capacitiu pur</b><span>Reactància capacitiva, intensitat avançada 90°.</span></a></li>
+    <li><a href="#rlc"><span class="num">1.3.4</span><b>Circuit mixt RLC sèrie</b><span>Suma fasorial, impedància, desfasament i triangle d’impedàncies.</span></a></li>
+    <li><a href="#practica"><span class="num">Exercicis</span><b>Posa’t a prova</b><span>Preguntes de conceptes i problemes de càlcul amb correcció.</span></a></li>
+  </ol>
+</section>
+</div>
+
+<!-- 1.3 Impedància -->
+<section class="sec page" id="impedancia" data-title="Impedància">
+  <div class="sec-head"><span class="num">1.3</span><h2>Impedància: l’oposició al corrent altern</h2></div>
+  <div class="cols">
+    <div class="theory">
+      <p>El comportament d’un receptor en corrent altern depèn de la seva naturalesa. Hi ha tres comportaments bàsics: <b class="tag-r">resistiu</b>, <b class="tag-l">inductiu</b> i <b class="tag-c">capacitiu</b>. En circuits reals és habitual trobar-ne combinacions.</p>
+      <p>Els components passius <var>R</var>, <var>L</var> i <var>C</var> s’oposen al pas del corrent altern. Aquesta oposició s’anomena, de manera genèrica, <b>impedància</b> (<var>Z</var>).</p>
+      <ul>
+        <li>Es mesura en <b>ohms (Ω)</b>.</li>
+        <li>És un <b>vector</b>: té un valor numèric (mòdul) i un angle (fase).</li>
+        <li>Es dibuixa amb una fletxa de longitud proporcional al mòdul i inclinada segons l’angle.</li>
+        <li>En bobines i condensadors <b>varia amb la freqüència</b>. En una resistència és fixa.</li>
+      </ul>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Component</th><th>Nom</th><th>Valor</th><th>Vector</th></tr></thead>
+          <tbody>
+            <tr><td>Resistència <var>R</var></td><td>Resistència</td><td><span class="eq"><i>R</i></span></td><td><svg width="64" height="26" viewBox="0 0 64 26" aria-label="horitzontal"><path d="M4 13h46" stroke="var(--r)" stroke-width="3"/><path d="M60 13 48 7v12z" fill="var(--r)"/></svg></td></tr>
+            <tr><td>Bobina <var>L</var></td><td>Reactància inductiva</td><td><span class="eq"><i>X</i><sub>L</sub> = 2π<i>fL</i></span></td><td><svg width="64" height="40" viewBox="0 0 64 40" aria-label="vertical amunt"><path d="M20 37V12" stroke="var(--l)" stroke-width="3"/><path d="M20 2l-6 12h12z" fill="var(--l)"/><text x="32" y="24" font-size="11" fill="var(--muted)" font-family="IBM Plex Sans, sans-serif">amunt</text></svg></td></tr>
+            <tr><td>Condensador <var>C</var></td><td>Reactància capacitiva</td><td><span class="eq"><i>X</i><sub>C</sub> = <span class="frac"><span>1</span><span>2π<i>fC</i></span></span></span></td><td><svg width="64" height="40" viewBox="0 0 64 40" aria-label="vertical avall"><path d="M20 3v25" stroke="var(--c)" stroke-width="3"/><path d="M20 38l-6-12h12z" fill="var(--c)"/><text x="32" y="24" font-size="11" fill="var(--muted)" font-family="IBM Plex Sans, sans-serif">avall</text></svg></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lab" id="lab-z">
+      <div class="lab-head"><span class="lab-title">Oposició segons la freqüència</span>
+        <div class="legend"><span><i style="background:var(--r)"></i>R</span><span><i style="background:var(--l)"></i>X<sub>L</sub></span><span><i style="background:var(--c)"></i>X<sub>C</sub></span></div></div>
+      <figure><canvas class="chart" id="cv-z" aria-label="Gràfica de R, XL i XC en funció de la freqüència"></canvas></figure>
+      <div class="controls"></div>
+      <div class="readouts"></div>
+      <div class="insight" data-out="msg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 1.3.1 Resistiu -->
+<section class="sec page" id="resistiu" data-title="Circuit resistiu pur">
+  <div class="sec-head"><span class="num">1.3.1</span><h2>Circuit resistiu pur</h2></div>
+  <div class="cols">
+    <div class="theory">
+      <p>La càrrega està formada únicament per una <b>resistència</b>. La relació entre tensió i intensitat la dona la llei d’Ohm:</p>
+      <div class="eqs"><span class="eq"><i>R</i> = <span class="frac"><span><i>V</i></span><span><i>I</i></span></span></span><span class="eq"><i>I</i> = <span class="frac"><span><i>V</i></span><span><i>R</i></span></span></span></div>
+      <h3>Desfasament</h3>
+      <p class="key">La tensió i la intensitat estan en fase: φ = 0°.</p>
+      <p>Quan la tensió arriba al seu valor màxim, la intensitat també hi arriba. El fasor <var>I</var> té la mateixa direcció que <var>V</var><sub>R</sub>.</p>
+      <h3>Potència</h3>
+      <p>La potència instantània és el producte dels valors instantanis:</p>
+      <div class="eqs"><span class="eq"><i>p</i>(<i>t</i>) = <i>v</i>(<i>t</i>) · <i>i</i>(<i>t</i>)</span></div>
+      <p>La potència mitjana o <b>activa</b>, en watts (W), es pot calcular de tres maneres:</p>
+      <div class="eqs"><span class="eq"><i>P</i> = <i>V</i> · <i>I</i></span><span class="eq"><i>P</i> = <i>R</i> · <i>I</i><sup>2</sup></span><span class="eq"><i>P</i> = <span class="frac"><span><i>V</i><sup>2</sup></span><span><i>R</i></span></span></span></div>
+    </div>
+    <div class="lab" id="lab-r">
+      <div class="lab-head"><span class="lab-title">Banc de proves · R</span>
+        <div class="legend"><span><i style="background:var(--sc-v)"></i>v(t)</span><span><i style="background:var(--sc-i)"></i>i(t)</span><span><i style="background:var(--sc-p)"></i>p(t)</span></div></div>
+      <div class="screens">
+        <figure><canvas class="scope" aria-label="Oscil·loscopi"></canvas><figcaption><span>Oscil·loscopi · 2 períodes</span><span>arrossega per moure t</span></figcaption></figure>
+        <figure><canvas class="phasor" aria-label="Diagrama de fasors"></canvas><figcaption><span>Fasors</span></figcaption></figure>
+      </div>
+      <div class="controls"></div>
+      <div class="readouts"></div>
+      <div class="insight"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 4.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>La corba <b>p(t)</b> mai és negativa: la resistència sempre absorbeix energia de la font i la transforma en calor. La línia discontínua és la potència mitjana <var>P</var>.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 1.3.2 Inductiu -->
+<section class="sec page" id="inductiu" data-title="Circuit inductiu pur">
+  <div class="sec-head"><span class="num">1.3.2</span><h2>Circuit inductiu pur</h2></div>
+  <div class="cols">
+    <div class="theory">
+      <p>Una <b>bobina</b> presenta inductància i s’oposa a les variacions del corrent que la travessa: quan hi circula un corrent variable, es genera una força electromotriu induïda.</p>
+      <h3>Desfasament</h3>
+      <p class="key">La intensitat queda endarrerida 90° respecte de la tensió: φ = 90°.</p>
+      <h3>Reactància inductiva</h3>
+      <p>L’oposició de la bobina al corrent altern és la reactància inductiva, en Ω (<var>f</var> en Hz, <var>L</var> en henrys):</p>
+      <div class="eqs"><span class="eq"><i>X</i><sub>L</sub> = <i>ωL</i></span><span class="eq"><i>ω</i> = 2π<i>f</i></span><span class="eq"><i>X</i><sub>L</sub> = 2π<i>fL</i></span></div>
+      <p><var>X</var><sub>L</sub> <b>augmenta amb la freqüència</b>. Per recordar-ho: a freqüències molt baixes una bobina no deixa de ser un fil conductor, i la seva impedància és baixa.</p>
+      <p>Com a vector: <span class="eq" style="font-size:18px"><i>Z</i><sub>L</sub> = <i>jX</i><sub>L</sub></span> i <span class="eq" style="font-size:18px"><i>I</i> = <span class="frac"><span><i>V</i><sub>L</sub></span><span><i>X</i><sub>L</sub></span></span></span></p>
+      <h3>Potència reactiva</h3>
+      <p>Una bobina ideal no consumeix potència activa neta: l’energia va i torna entre la font i el camp magnètic. La potència associada és la <b>reactiva</b>, en voltamperes reactius (VAr):</p>
+      <div class="eqs"><span class="eq"><i>Q</i> = <i>V</i> · <i>I</i></span><span class="eq"><i>Q</i> = <i>X</i><sub>L</sub> · <i>I</i><sup>2</sup></span></div>
+    </div>
+    <div class="lab" id="lab-l">
+      <div class="lab-head"><span class="lab-title">Banc de proves · L</span>
+        <div class="legend"><span><i style="background:var(--sc-v)"></i>v(t)</span><span><i style="background:var(--sc-i)"></i>i(t)</span><span><i style="background:var(--sc-p)"></i>p(t)</span></div></div>
+      <div class="screens">
+        <figure><canvas class="scope" aria-label="Oscil·loscopi"></canvas><figcaption><span>Oscil·loscopi · 2 períodes</span><span>arrossega per moure t</span></figcaption></figure>
+        <figure><canvas class="phasor" aria-label="Diagrama de fasors"></canvas><figcaption><span>Fasors</span></figcaption></figure>
+      </div>
+      <div class="controls"></div>
+      <div class="readouts"></div>
+      <div class="insight"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 4.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Les àrees positives i negatives de <b>p(t)</b> són iguals: la mitjana és zero. Prova de <b>duplicar la freqüència</b>: <var>X</var><sub>L</sub> es duplica i <var>I</var> es redueix a la meitat.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 1.3.3 Capacitiu -->
+<section class="sec page" id="capacitiu" data-title="Circuit capacitiu pur">
+  <div class="sec-head"><span class="num">1.3.3</span><h2>Circuit capacitiu pur</h2></div>
+  <div class="cols">
+    <div class="theory">
+      <p>Un <b>condensador</b> emmagatzema energia en forma de camp elèctric. La seva capacitat es mesura en farads (F).</p>
+      <h3>Desfasament</h3>
+      <p class="key">La intensitat s’avança 90° respecte de la tensió.</p>
+      <p>O, dit d’una altra manera, la tensió queda endarrerida 90° respecte de la intensitat.</p>
+      <h3>Reactància capacitiva</h3>
+      <div class="eqs"><span class="eq"><i>X</i><sub>C</sub> = <span class="frac"><span>1</span><span><i>ωC</i></span></span></span><span class="eq"><i>X</i><sub>C</sub> = <span class="frac"><span>1</span><span>2π<i>fC</i></span></span></span></div>
+      <p><var>X</var><sub>C</sub> <b>disminueix quan augmenta la freqüència</b>. Per recordar-ho: un cop carregat, un condensador no deixa passar el corrent continu. Equival a un circuit obert (resistència infinita).</p>
+      <p>Com a vector: <span class="eq" style="font-size:18px"><i>Z</i><sub>C</sub> = −<i>jX</i><sub>C</sub></span> i <span class="eq" style="font-size:18px"><i>I</i> = <span class="frac"><span><i>V</i><sub>C</sub></span><span><i>X</i><sub>C</sub></span></span></span></p>
+      <p>Com en la bobina, no hi ha consum net de potència activa: només hi ha potència reactiva <span class="eq" style="font-size:18px"><i>Q</i> = <i>V</i>·<i>I</i></span>.</p>
+    </div>
+    <div class="lab" id="lab-c">
+      <div class="lab-head"><span class="lab-title">Banc de proves · C</span>
+        <div class="legend"><span><i style="background:var(--sc-v)"></i>v(t)</span><span><i style="background:var(--sc-i)"></i>i(t)</span><span><i style="background:var(--sc-p)"></i>p(t)</span></div></div>
+      <div class="screens">
+        <figure><canvas class="scope" aria-label="Oscil·loscopi"></canvas><figcaption><span>Oscil·loscopi · 2 períodes</span><span>arrossega per moure t</span></figcaption></figure>
+        <figure><canvas class="phasor" aria-label="Diagrama de fasors"></canvas><figcaption><span>Fasors</span></figcaption></figure>
+      </div>
+      <div class="controls"></div>
+      <div class="readouts"></div>
+      <div class="insight"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 4.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Baixa la freqüència cap a 1 Hz: <var>X</var><sub>C</sub> es dispara i la intensitat gairebé desapareix. És el comportament de circuit obert en corrent continu.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 1.3.4 RLC -->
+<section class="sec page" id="rlc" data-title="Circuit RLC sèrie">
+  <div class="sec-head"><span class="num">1.3.4</span><h2>Circuit mixt RLC sèrie</h2></div>
+  <div class="rlc-theory">
+    <div class="theory">
+      <p>Un circuit RLC està format per una resistència <var>R</var>, una inductància <var>L</var> i un condensador <var>C</var>. En un circuit <b>sèrie</b>, la intensitat és comuna als tres elements, i per això la prenem com a referència dels fasors.</p>
+      <div class="eqs"><span class="eq"><i>V</i><sub>R</sub> = <i>R</i>·<i>I</i></span><span class="eq"><i>V</i><sub>L</sub> = <i>X</i><sub>L</sub>·<i>I</i></span><span class="eq"><i>V</i><sub>C</sub> = <i>X</i><sub>C</sub>·<i>I</i></span></div>
+      <p class="key">Les tensions no es poden sumar aritmèticament perquè no estan en fase: la tensió total és la suma fasorial.</p>
+    </div>
+    <div class="theory">
+      <p>La <b>impedància</b> <var>Z</var> és l’oposició total del circuit:</p>
+      <div class="eqs">
+        <span class="eq"><i>Z</i> = <i>R</i> + <i>j</i>(<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)</span>
+        <span class="eq">|<i>Z</i>| = <span class="sqrt">√<span><i>R</i><sup>2</sup> + (<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)<sup>2</sup></span></span></span>
+        <span class="eq"><i>I</i> = <span class="frac"><span><i>V</i></span><span>|<i>Z</i>|</span></span></span>
+        <span class="eq">φ = tan<sup>−1</sup> <span class="frac"><span><i>X</i><sub>L</sub> − <i>X</i><sub>C</sub></span><span><i>R</i></span></span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="lab" id="lab-rlc">
+    <div class="lab-head"><span class="lab-title">Banc de proves · RLC sèrie</span><span class="badge" data-out="badge"></span></div>
+    <div class="rlc-grid">
+      <div class="rlc-side">
+        <div class="controls"></div>
+        <div>
+          <div class="side-h">Exemples</div>
+          <div class="btns">
+            <button class="btn" type="button" data-preset="ind">Predomina L</button>
+            <button class="btn" type="button" data-preset="cap">Predomina C</button>
+            <button class="btn" type="button" data-preset="res">X<sub>L</sub> = X<sub>C</sub></button>
+          </div>
+        </div>
+        <div>
+          <div class="side-h">Visualització</div>
+          <div class="checks">
+            <label><input type="checkbox" id="ck-chain" checked> Fasors encadenats (cap a cua)</label>
+            <label><input type="checkbox" id="ck-parts" checked> Tensions parcials a l’oscil·loscopi</label>
+            <label><input type="checkbox" id="ck-pow"> Potència p(t)</label>
+          </div>
+        </div>
+      </div>
+      <div class="rlc-main">
+        <div class="screens2">
+          <figure><canvas class="phasor" id="cv-rlc-ph" aria-label="Diagrama de fasors de tensions"></canvas><figcaption><span>Fasors de tensió (ref. <var>I</var>)</span></figcaption></figure>
+          <figure><canvas class="scope" id="cv-rlc-sc" aria-label="Oscil·loscopi RLC"></canvas><figcaption>
+            <span class="legend"><span><i style="background:var(--sc-v)"></i>v</span><span><i style="background:var(--sc-i)"></i>i</span><span><i style="background:var(--sc-r)"></i>v<sub>R</sub></span><span><i style="background:var(--sc-l)"></i>v<sub>L</sub></span><span><i style="background:var(--sc-c)"></i>v<sub>C</sub></span></span></figcaption></figure>
+        </div>
+        <div class="screens2">
+          <figure><canvas class="tri" id="cv-rlc-tri" aria-label="Triangle d'impedàncies"></canvas><figcaption><span>Triangle d’impedàncies</span></figcaption></figure>
+          <figure><canvas class="chart" id="cv-rlc-f" aria-label="Resposta en freqüència"></canvas><figcaption><span>Resposta en freqüència</span>
+            <span class="btns" role="group" aria-label="Magnitud"><button class="btn" type="button" data-zmode="Z" aria-pressed="true">|Z|(f)</button><button class="btn" type="button" data-zmode="I" aria-pressed="false">I(f)</button></span></figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="readouts"></div>
+  </div>
+</section>
+
+<!-- Practica -->
+<section class="sec page" id="practica" data-title="Posa’t a prova">
+  <div class="sec-head"><span class="num">Exercicis</span><h2>Posa’t a prova</h2></div>
+  <div class="quiz">
+    <div class="quiz-bar">
+      <div class="btns" role="group" aria-label="Tipus de pregunta">
+        <button class="btn" type="button" data-qf="all" aria-pressed="true">Tot</button>
+        <button class="btn" type="button" data-qf="concept" aria-pressed="false">Conceptes</button>
+        <button class="btn" type="button" data-qf="calc" aria-pressed="false">Càlculs</button>
+      </div>
+      <div class="score">Encerts <b id="q-ok">0</b> de <b id="q-n">0</b></div>
+    </div>
+    <article class="q-card" id="q-card" aria-live="polite"></article>
+    <p style="font-size:13.5px;color:var(--muted);margin:0">Als càlculs pots fer servir coma o punt decimal. S’accepta un marge del 2 % (±1° per als angles). Les tensions i intensitats són valors eficaços.</p>
+  </div>
+</section>
+
+</main>
+<footer><div class="wrap">Basat en els apunts «1.3. Comportament dels receptors en corrent altern». Tensions i intensitats en valor eficaç. L’animació està alentida: l’oscil·loscopi mostra sempre dos períodes, sigui quina sigui la freqüència.</div></footer>
+
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const PI = Math.PI, TAU = 2 * PI, DEG = 180 / PI, SQ2 = Math.SQRT2;
+const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+const MATH = '"STIX Two Text", "Times New Roman", serif';
+
+/* ---------- formatting (Catalan: decimal comma) ---------- */
+function n(x, sig = 3) {
+  if (!isFinite(x)) return '∞';
+  if (x === 0) return '0';
+  const a = Math.abs(x);
+  const dec = Math.max(0, Math.min(6, sig - 1 - Math.floor(Math.log10(a))));
+  return x.toLocaleString('ca-ES', { maximumFractionDigits: dec, useGrouping: false });
+}
+const PFX = [[1e6, 'M'], [1e3, 'k'], [1, ''], [1e-3, 'm'], [1e-6, 'µ'], [1e-9, 'n']];
+function eng(x, unit, sig = 3) {
+  if (!isFinite(x)) return '∞ ' + unit;
+  if (Math.abs(x) < 1e-12) return '0 ' + unit;
+  const a = Math.abs(x);
+  for (const [m, p] of PFX) if (a >= m * 0.9995) return n(x / m, sig) + ' ' + p + unit;
+  return n(x / 1e-9, sig) + ' n' + unit;
+}
+// value for substituted formulas: small numbers as mantissa·10^n
+function sv(x) { if (x !== 0 && Math.abs(x) < 0.01) { const e = Math.floor(Math.log10(Math.abs(x))); const e3 = Math.floor(e / 3) * 3; return `${n(x / 10 ** e3)}·10<sup>${String(e3).replace('-', '−')}</sup>`; } return n(x); }
+const deg = r => n(r * DEG, 3) + '°';
+function step125(x) { if (!(x > 0)) return 1; const e = Math.floor(Math.log10(x)); const b = x / 10 ** e; return (b <= 1 ? 1 : b <= 2 ? 2 : b <= 5 ? 5 : 10) * 10 ** e; }
+function niceUp(x) { if (!(x > 0)) return 1; const e = Math.floor(Math.log10(x)); const b = x / 10 ** e; const m = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find(v => b <= v + 1e-9); return m * 10 ** e; }
+function niceStep(max, count) { const raw = max / count; const e = Math.floor(Math.log10(raw)); const b = raw / 10 ** e; return (b <= 1 ? 1 : b <= 2 ? 2 : b <= 2.5 ? 2.5 : b <= 5 ? 5 : 10) * 10 ** e; }
+
+/* ---------- palette from CSS tokens ---------- */
+let PAL = {};
+const TOKENS = ['paper','panel','ink','muted','rule','soft','v','i','r','l','c','p','sc-bg','sc-grid','sc-axis','sc-text','sc-v','sc-i','sc-r','sc-l','sc-c','sc-p','sc-pn','sc-z'];
+function readPal() { const cs = getComputedStyle(document.documentElement); PAL = {}; for (const t of TOKENS) PAL[t] = cs.getPropertyValue('--' + t).trim(); }
+function rgba(hex, a) {
+  const h = hex.replace('#', '');
+  if (h.length !== 6) return hex;
+  return `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})`;
+}
+
+/* ---------- canvas helpers ---------- */
+function prep(cv) {
+  const r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  const W = Math.max(1, Math.round(r.width * d)), H = Math.max(1, Math.round(r.height * d));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  ctx.clearRect(0, 0, r.width, r.height);
+  return { ctx, w: r.width, h: r.height };
+}
+function arrow(ctx, x0, y0, x1, y1, col, lw = 2.4, head = 10, dash = null) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+  if (L < 0.5) return;
+  const ux = dx / L, uy = dy / L, hl = Math.min(head, L * 0.5), hw = hl * 0.5;
+  ctx.save();
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round';
+  if (dash) ctx.setLineDash(dash);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * hl * 0.8, y1 - uy * hl * 0.8); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x1, y1);
+  ctx.lineTo(x1 - ux * hl - uy * hw, y1 - uy * hl + ux * hw);
+  ctx.lineTo(x1 - ux * hl + uy * hw, y1 - uy * hl - ux * hw);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+// label like V with subscript R, centred at x,y
+function subLabel(ctx, main, sub, x, y, col, size = 14) {
+  ctx.save();
+  ctx.fillStyle = col; ctx.textBaseline = 'middle';
+  ctx.font = `italic 600 ${size}px ${MATH}`;
+  const w1 = ctx.measureText(main).width;
+  ctx.font = `600 ${size * 0.68}px ${MATH}`;
+  const w2 = sub ? ctx.measureText(sub).width : 0;
+  const x0 = x - (w1 + w2) / 2;
+  ctx.font = `italic 600 ${size}px ${MATH}`; ctx.textAlign = 'left';
+  ctx.fillText(main, x0, y);
+  if (sub) { ctx.font = `600 ${size * 0.68}px ${MATH}`; ctx.fillText(sub, x0 + w1, y + size * 0.3); }
+  ctx.restore();
+}
+
+/* ---------- oscilloscope ---------- */
+// o: { f, theta, ch:[{name, unit, color, traces:[{peak, phase, color, width}]}], power:{pv, pi}|null, minimal }
+function drawScope(cv, o) {
+  const { ctx, w, h } = prep(cv); const P = PAL;
+  ctx.fillStyle = P['sc-bg']; ctx.fillRect(0, 0, w, h);
+  const DX = 10, DY = 8, gx = w / DX, gy = h / DY, mid = h / 2;
+  ctx.lineWidth = 1; ctx.strokeStyle = P['sc-grid']; ctx.beginPath();
+  for (let i = 1; i < DX; i++) { const x = Math.round(i * gx) + .5; ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+  for (let j = 1; j < DY; j++) { const y = Math.round(j * gy) + .5; ctx.moveTo(0, y); ctx.lineTo(w, y); }
+  ctx.stroke();
+  ctx.strokeStyle = P['sc-axis']; ctx.beginPath();
+  ctx.moveTo(0, Math.round(mid) + .5); ctx.lineTo(w, Math.round(mid) + .5);
+  if (!o.minimal) {
+    for (let k = 1; k < DX * 5; k++) { const x = Math.round(k * gx / 5) + .5; ctx.moveTo(x, mid - 3); ctx.lineTo(x, mid + 3); }
+    const cx = Math.round(w / 2) + .5;
+    for (let k = 1; k < DY * 5; k++) { const y = Math.round(k * gy / 5) + .5; ctx.moveTo(cx - 3, y); ctx.lineTo(cx + 3, y); }
+  }
+  ctx.stroke();
+  const X = a => a / (4 * PI) * w;
+  const N = Math.max(160, Math.round(w));
+  const amp = 3.4 * gy;
+
+  if (o.power) {
+    const { pv, pi } = o.power;
+    const pf = a => Math.sin(a + pv) * Math.sin(a + pi);
+    for (const sign of [1, -1]) {
+      ctx.beginPath(); ctx.moveTo(0, mid);
+      for (let k = 0; k <= N; k++) { const a = k / N * 4 * PI; let p = pf(a); p = sign > 0 ? Math.max(p, 0) : Math.min(p, 0); ctx.lineTo(X(a), mid - p * amp); }
+      ctx.lineTo(w, mid); ctx.closePath();
+      ctx.fillStyle = sign > 0 ? rgba(P['sc-p'], .2) : rgba(P['sc-pn'], .28); ctx.fill();
+    }
+    ctx.beginPath();
+    for (let k = 0; k <= N; k++) { const a = k / N * 4 * PI; const y = mid - pf(a) * amp; k ? ctx.lineTo(X(a), y) : ctx.moveTo(X(a), y); }
+    ctx.strokeStyle = rgba(P['sc-p'], .8); ctx.lineWidth = 1.3; ctx.stroke();
+    const avg = 0.5 * Math.cos(pv - pi);
+    ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(0, mid - avg * amp); ctx.lineTo(w, mid - avg * amp); ctx.strokeStyle = P['sc-p']; ctx.lineWidth = 1.2; ctx.stroke(); ctx.setLineDash([]);
+    if (!o.minimal) { ctx.font = `500 10.5px ${MONO}`; ctx.fillStyle = P['sc-p']; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(Math.abs(avg) < 0.01 ? 'P = 0' : 'P mitjana', w - 6, mid - avg * amp - 3); }
+  }
+
+  const dots = [];
+  for (const ch of o.ch) {
+    const maxPeak = Math.max(...ch.traces.map(t => t.peak), 1e-12);
+    ch.div = o.minimal ? maxPeak / 3.4 : step125(maxPeak / 3.4);
+    for (const t of ch.traces) {
+      const s = t.peak / ch.div * gy;
+      ctx.beginPath();
+      for (let k = 0; k <= N; k++) { const a = k / N * 4 * PI; const y = mid - s * Math.sin(a + t.phase); k ? ctx.lineTo(X(a), y) : ctx.moveTo(X(a), y); }
+      ctx.strokeStyle = t.color; ctx.lineWidth = t.width || 2.2; ctx.lineJoin = 'round'; ctx.stroke();
+      dots.push([t.color, s, t.phase]);
+    }
+  }
+  if (o.theta != null) {
+    const x = X(o.theta);
+    ctx.strokeStyle = rgba(P['sc-z'], .45); ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); ctx.setLineDash([]);
+    for (const [col, s, ph] of dots) { ctx.beginPath(); ctx.arc(x, mid - s * Math.sin(o.theta + ph), o.minimal ? 3 : 4, 0, TAU); ctx.fillStyle = col; ctx.fill(); }
+  }
+  if (!o.minimal) {
+    ctx.font = `600 11px ${MONO}`; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+    let y = 7;
+    for (const ch of o.ch) { ctx.fillStyle = ch.color; ctx.fillText(`${ch.name}  ${eng(ch.div, ch.unit)}/div`, 8, y); y += 15; }
+    ctx.fillStyle = P['sc-text']; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`${eng(2 / o.f / DX, 's')}/div`, w - 7, h - 6);
+  }
+}
+
+/* ---------- phasor diagram ---------- */
+// o: { theta, rotate, vecs:[{sx, sy, mag, ang, color, label, sub, lw, dash, proj}], arc:{a1, a2, label, color} }
+function drawPhasor(cv, o) {
+  const { ctx, w, h } = prep(cv); const P = PAL;
+  ctx.fillStyle = P['sc-bg']; ctx.fillRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2, R = Math.min(w, h) / 2 - 26;
+  let bound = 1e-12;
+  for (const v of o.vecs) bound = Math.max(bound, Math.hypot(v.sx || 0, v.sy || 0) + v.mag);
+  const k = R / bound;
+  ctx.strokeStyle = P['sc-grid']; ctx.lineWidth = 1;
+  for (const f of [0.5, 1]) { ctx.beginPath(); ctx.arc(cx, cy, R * f, 0, TAU); ctx.stroke(); }
+  ctx.strokeStyle = P['sc-axis']; ctx.beginPath();
+  ctx.moveTo(8, Math.round(cy) + .5); ctx.lineTo(w - 8, Math.round(cy) + .5);
+  ctx.moveTo(Math.round(cx) + .5, 8); ctx.lineTo(Math.round(cx) + .5, h - 8); ctx.stroke();
+  const rot = o.rotate ? o.theta : 0, c = Math.cos(rot), s = Math.sin(rot);
+  const S = (x, y) => [cx + (x * c - y * s) * k, cy - (x * s + y * c) * k];
+
+  if (o.arc && Math.abs(o.arc.a2 - o.arc.a1) > 0.01) {
+    const a1 = o.arc.a1 + rot, a2 = o.arc.a2 + rot, r = Math.min(34, R * 0.3);
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, -a1, -a2, a2 > a1); ctx.closePath();
+    ctx.fillStyle = rgba(o.arc.color || P['sc-z'], .16); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r, -a1, -a2, a2 > a1); ctx.strokeStyle = rgba(o.arc.color || P['sc-z'], .7); ctx.lineWidth = 1.2; ctx.stroke();
+    const am = (a1 + a2) / 2;
+    ctx.font = `italic 600 13px ${MATH}`; ctx.fillStyle = P['sc-z']; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('φ', cx + Math.cos(am) * (r + 11), cy - Math.sin(am) * (r + 11));
+  }
+  for (const v of o.vecs) {
+    if (!v.proj) continue;
+    const [x1, y1] = S((v.sx || 0) + v.mag * Math.cos(v.ang), (v.sy || 0) + v.mag * Math.sin(v.ang));
+    ctx.setLineDash([2, 3]); ctx.strokeStyle = rgba(v.color, .55); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(cx, y1); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(cx, y1, 3, 0, TAU); ctx.fillStyle = v.color; ctx.fill();
+  }
+  for (const v of o.vecs) {
+    const sx = v.sx || 0, sy = v.sy || 0;
+    const ex = sx + v.mag * Math.cos(v.ang), ey = sy + v.mag * Math.sin(v.ang);
+    const [x0, y0] = S(sx, sy), [x1, y1] = S(ex, ey);
+    arrow(ctx, x0, y0, x1, y1, v.color, v.lw || 2.6, 11, v.dash);
+    if (v.label) {
+      const L = Math.hypot(x1 - x0, y1 - y0) || 1;
+      const ux = (x1 - x0) / L, uy = (y1 - y0) / L;
+      const off = v.labelSide ? 14 : 0;
+      subLabel(ctx, v.label, v.sub, x1 + ux * 13 - uy * off * v.labelSide, y1 + uy * 13 + ux * off * v.labelSide, v.color, 15);
+    }
+  }
+  if (o.rotate) {
+    ctx.font = `500 10.5px ${MONO}`; ctx.fillStyle = P['sc-text']; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`ωt = ${Math.round((o.theta * DEG) % 360)}°`, 7, h - 6);
+  }
+}
+
+/* ---------- xy chart (paper) ---------- */
+// o: { xmax, ymax, xunit, yunit, curves:[{fn, color, lw, dash, label}], marker:{x, label}, vlines:[{x,label,color}] }
+function drawChart(cv, o) {
+  const { ctx, w, h } = prep(cv); const P = PAL;
+  const m = { l: 48, r: 14, t: 14, b: 32 }, pw = w - m.l - m.r, ph = h - m.t - m.b;
+  const X = x => m.l + x / o.xmax * pw, Y = y => m.t + ph - y / o.ymax * ph;
+  ctx.font = `500 10.5px ${MONO}`; ctx.fillStyle = P.muted; ctx.strokeStyle = P.rule; ctx.lineWidth = 1;
+  const xs = niceStep(o.xmax, w < 420 ? 4 : 5), ys = niceStep(o.ymax, 4);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let x = 0; x <= o.xmax + 1e-9; x += xs) { const px = Math.round(X(x)) + .5; ctx.beginPath(); ctx.moveTo(px, m.t); ctx.lineTo(px, m.t + ph); ctx.stroke(); ctx.fillText(n(x, 4), px, m.t + ph + 6); }
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let y = 0; y <= o.ymax + 1e-9; y += ys) { const py = Math.round(Y(y)) + .5; ctx.beginPath(); ctx.moveTo(m.l, py); ctx.lineTo(m.l + pw, py); ctx.stroke(); ctx.fillText(n(y, 4), m.l - 6, py); }
+  ctx.strokeStyle = P.muted; ctx.beginPath(); ctx.moveTo(m.l + .5, m.t); ctx.lineTo(m.l + .5, m.t + ph + .5); ctx.lineTo(m.l + pw, m.t + ph + .5); ctx.stroke();
+  ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(o.xunit, m.l + pw, m.t + ph - 4);
+  ctx.save(); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(o.yunit, m.l + 6, m.t + 2); ctx.restore();
+
+  ctx.save(); ctx.beginPath(); ctx.rect(m.l, m.t - 2, pw + 2, ph + 4); ctx.clip();
+  for (const vl of o.vlines || []) {
+    if (vl.x > o.xmax) continue;
+    ctx.setLineDash([2, 4]); ctx.strokeStyle = vl.color; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(X(vl.x), m.t); ctx.lineTo(X(vl.x), m.t + ph); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = vl.color; ctx.font = `italic 600 13px ${MATH}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(vl.label, X(vl.x) + 4, m.t + ph - 4);
+  }
+  const N = Math.max(200, Math.round(pw));
+  for (const c of o.curves) {
+    ctx.beginPath(); let started = false;
+    for (let k = 1; k <= N; k++) {
+      const x = k / N * o.xmax, y = c.fn(x);
+      const py = Y(Math.min(Math.max(y, -o.ymax * .1), o.ymax * 1.5));
+      if (!isFinite(py)) { started = false; continue; }
+      started ? ctx.lineTo(X(x), py) : ctx.moveTo(X(x), py); started = true;
+    }
+    ctx.strokeStyle = c.color; ctx.lineWidth = c.lw || 2; ctx.setLineDash(c.dash || []); ctx.stroke(); ctx.setLineDash([]);
+  }
+  if (o.marker) {
+    const mx = X(o.marker.x);
+    ctx.strokeStyle = P.ink; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(mx, m.t); ctx.lineTo(mx, m.t + ph); ctx.stroke(); ctx.setLineDash([]);
+    for (const c of o.curves) {
+      if (c.noDot) continue;
+      const y = c.fn(o.marker.x); if (!(y <= o.ymax * 1.02)) continue;
+      ctx.beginPath(); ctx.arc(mx, Y(y), 4.5, 0, TAU); ctx.fillStyle = P.panel; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = c.color; ctx.stroke();
+    }
+  }
+  ctx.restore();
+  if (o.marker) {
+    ctx.font = `600 11px ${MONO}`; ctx.fillStyle = P.ink; ctx.textBaseline = 'top';
+    const mx = X(o.marker.x); const right = mx < m.l + pw - 70;
+    ctx.textAlign = right ? 'left' : 'right';
+    ctx.fillText(o.marker.label, mx + (right ? 5 : -5), m.t + 16);
+  }
+}
+
+/* ---------- animation loop ---------- */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const anim = { theta: PI / 3, playing: !reduced, speed: TAU * 0.3 };
+const drawers = [];
+const io = new IntersectionObserver(es => { for (const e of es) { const d = e.target._d; if (d) { d.vis = e.isIntersecting; if (d.vis) d.dirty = true; } } }, { rootMargin: '120px' });
+const ro = new ResizeObserver(es => { for (const e of es) if (e.target._d) e.target._d.dirty = true; });
+function register(cv, fn, isStatic = false) { const d = { cv, fn, vis: true, dirty: true, isStatic }; cv._d = d; drawers.push(d); io.observe(cv); ro.observe(cv); return d; }
+function dirty() { for (const d of drawers) d.dirty = true; }
+let last = performance.now();
+function frame(t) {
+  const dt = Math.min(0.1, (t - last) / 1000); last = t;
+  if (anim.playing) anim.theta = (anim.theta + dt * anim.speed) % (4 * PI);
+  let pal = false;
+  for (const d of drawers) {
+    if (!d.vis || !d.cv.offsetWidth) continue;
+    if (d.dirty || (anim.playing && !d.isStatic)) {
+      if (!pal) { readPal(); pal = true; }
+      try { d.fn(); } catch (err) { console.error(err); }
+      d.dirty = false;
+    }
+  }
+  requestAnimationFrame(frame);
+}
+const playBtn = $('#play');
+const ICON_PAUSE = '<rect x="2" y="1" width="3" height="10" fill="currentColor"/><rect x="7" y="1" width="3" height="10" fill="currentColor"/>';
+const ICON_PLAY = '<path d="M2 1l9 5-9 5z" fill="currentColor"/>';
+function setPlaying(p) {
+  anim.playing = p; playBtn.setAttribute('aria-pressed', String(p));
+  playBtn.querySelector('svg').innerHTML = p ? ICON_PAUSE : ICON_PLAY;
+  playBtn.querySelector('.pl').textContent = p ? 'Atura' : 'Anima';
+  playBtn.setAttribute('aria-label', p ? 'Atura l’animació' : 'Reprèn l’animació');
+  dirty();
+}
+playBtn.addEventListener('click', () => setPlaying(!anim.playing));
+setPlaying(anim.playing);
+function scrub(cv) {
+  const go = e => { const r = cv.getBoundingClientRect(); anim.theta = Math.max(0, Math.min(0.9999, (e.clientX - r.left) / r.width)) * 4 * PI; if (anim.playing) setPlaying(false); dirty(); };
+  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); go(e); });
+  cv.addEventListener('pointermove', e => { if (e.buttons) go(e); });
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dirty);
+new MutationObserver(dirty).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+if (document.fonts) document.fonts.ready.then(dirty);
+
+/* ---------- sliders ---------- */
+let sid = 0;
+function slider(host, o, onChange) {
+  const id = 'sl' + (++sid), sc = o.scale || 1;
+  const wrap = document.createElement('div'); wrap.className = 'ctl';
+  wrap.innerHTML = `<div class="ctl-top"><label for="${id}"><var>${o.sym}</var> ${o.label}</label><span class="ctl-num"><input id="${id}-n" type="number" step="any" aria-label="${o.label} en ${o.unit}"><span>${o.unit}</span></span></div><input id="${id}" type="range" min="0" max="1000" step="1">`;
+  host.appendChild(wrap);
+  const r = wrap.querySelector('input[type=range]'), nEl = wrap.querySelector('input[type=number]');
+  const toPos = v => o.log ? 1000 * Math.log(v / o.min) / Math.log(o.max / o.min) : 1000 * (v - o.min) / (o.max - o.min);
+  const fromPos = p => o.log ? o.min * Math.pow(o.max / o.min, p / 1000) : o.min + (o.max - o.min) * p / 1000;
+  const disp = v => String(+(v / sc).toPrecision(4));
+  function show() { const v = o.obj[o.key]; r.value = toPos(v); nEl.value = disp(v); }
+  r.addEventListener('input', () => { let v = fromPos(+r.value); v = +v.toPrecision(o.prec || 3); o.obj[o.key] = v; nEl.value = disp(v); onChange(); });
+  nEl.addEventListener('change', () => { let v = parseFloat(String(nEl.value).replace(',', '.')) * sc; if (!isFinite(v)) { show(); return; } v = Math.min(o.max, Math.max(o.min, v)); o.obj[o.key] = v; show(); onChange(); });
+  show();
+  return { set(v) { o.obj[o.key] = v; show(); } };
+}
+const roRow = (k, f, v) => `<div class="ro"><span class="ro-k">${k}</span><span class="ro-f">${f}</span><span class="ro-v">${v}</span></div>`;
+
+/* ---------- hero minis ---------- */
+for (const cv of $$('.mini-cv')) {
+  const phiI = { r: 0, l: -PI / 2, c: PI / 2 }[cv.dataset.kind];
+  register(cv, () => drawScope(cv, { minimal: true, f: 50, theta: anim.theta, power: null,
+    ch: [{ traces: [{ peak: 1, phase: 0, color: PAL['sc-v'], width: 2 }, { peak: 0.72, phase: phiI, color: PAL['sc-i'], width: 2 }] }] }));
+}
+
+/* ---------- 1.3 impedance vs frequency ---------- */
+(() => {
+  const root = $('#lab-z'), st = { f: 50, R: 50, L: 0.1, C: 10e-6 };
+  const ctl = $('.controls', root), out = $('.readouts', root), msg = $('[data-out=msg]', root);
+  const on = () => { update(); d.dirty = true; };
+  slider(ctl, { obj: st, key: 'f', sym: 'f', label: 'Freqüència', unit: 'Hz', min: 1, max: 1000, prec: 3 }, on);
+  slider(ctl, { obj: st, key: 'R', sym: 'R', label: 'Resistència', unit: 'Ω', min: 1, max: 500, log: true }, on);
+  slider(ctl, { obj: st, key: 'L', sym: 'L', label: 'Inductància', unit: 'mH', scale: 1e-3, min: 1e-3, max: 1, log: true }, on);
+  slider(ctl, { obj: st, key: 'C', sym: 'C', label: 'Capacitat', unit: 'µF', scale: 1e-6, min: 1e-6, max: 1e-3, log: true }, on);
+  const XL = f => TAU * f * st.L, XC = f => 1 / (TAU * f * st.C);
+  function update() {
+    const { f, R, L, C } = st;
+    out.innerHTML = roRow('Resistència (no depèn de f)', '<i>R</i>', eng(R, 'Ω'))
+      + roRow('Reactància inductiva', `<i>X</i><sub>L</sub> = 2π·${n(f)}·${n(L)}`, eng(XL(f), 'Ω'))
+      + roRow('Reactància capacitiva', `<i>X</i><sub>C</sub> = 1 / (2π·${n(f)}·${sv(C)})`, eng(XC(f), 'Ω'));
+    const xl = XL(f), xc = XC(f);
+    const big = Math.max(R, xl, xc);
+    const who = big === R ? '<b class="tag-r">la resistència</b>' : big === xl ? '<b class="tag-l">la bobina</b>' : '<b class="tag-c">el condensador</b>';
+    const fx = 1 / (TAU * Math.sqrt(L * C));
+    msg.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 4.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>A ${n(f)} Hz, qui s’oposa més al corrent és ${who}. <var>X</var><sub>L</sub> i <var>X</var><sub>C</sub> són iguals a ${n(fx)} Hz: per sota domina el condensador, per sobre la bobina.</span>`;
+  }
+  update();
+  const cv = $('#cv-z');
+  const d = register(cv, () => {
+    const ymax = niceUp(Math.max(st.R * 1.4, XL(1000) * 1.05, 20));
+    drawChart(cv, { xmax: 1000, ymax, xunit: 'f (Hz)', yunit: 'Ω',
+      curves: [{ fn: () => st.R, color: PAL.r, lw: 2.2 }, { fn: XL, color: PAL.l, lw: 2.2 }, { fn: XC, color: PAL.c, lw: 2.2 }],
+      marker: { x: st.f, label: `f = ${n(st.f)} Hz` } });
+  }, true);
+})();
+
+/* ---------- single element labs ---------- */
+function elementLab(kind) {
+  const root = $('#lab-' + kind);
+  const st = { V: 230, f: 50, R: 100, L: 0.2, C: 22e-6 };
+  const ctl = $('.controls', root), out = $('.readouts', root);
+  let calc = {};
+  const on = () => { update(); dirty(); };
+  slider(ctl, { obj: st, key: 'V', sym: 'V', label: 'Tensió eficaç', unit: 'V', min: 1, max: 400 }, on);
+  if (kind === 'r') slider(ctl, { obj: st, key: 'R', sym: 'R', label: 'Resistència', unit: 'Ω', min: 1, max: 1000, log: true }, on);
+  if (kind === 'l') slider(ctl, { obj: st, key: 'L', sym: 'L', label: 'Inductància', unit: 'mH', scale: 1e-3, min: 1e-3, max: 2, log: true }, on);
+  if (kind === 'c') slider(ctl, { obj: st, key: 'C', sym: 'C', label: 'Capacitat', unit: 'µF', scale: 1e-6, min: 1e-7, max: 1e-3, log: true }, on);
+  slider(ctl, { obj: st, key: 'f', sym: 'f', label: 'Freqüència', unit: 'Hz', min: 1, max: 5000, log: true }, on);
+  function update() {
+    const { V, f, R, L, C } = st;
+    let X, phi, rows;
+    if (kind === 'r') {
+      X = R; phi = 0; const I = V / R;
+      rows = roRow('Intensitat', `<i>I</i> = <i>V</i>/<i>R</i> = ${n(V)} / ${n(R)}`, eng(I, 'A'))
+        + roRow('Desfasament', 'φ', '0°')
+        + roRow('Potència activa', `<i>P</i> = <i>V</i>·<i>I</i> = <i>R</i>·<i>I</i><sup>2</sup> = <i>V</i><sup>2</sup>/<i>R</i>`, eng(V * I, 'W'));
+    } else if (kind === 'l') {
+      X = TAU * f * L; phi = PI / 2; const I = V / X;
+      rows = roRow('Reactància inductiva', `<i>X</i><sub>L</sub> = 2π·${n(f)}·${n(L)}`, eng(X, 'Ω'))
+        + roRow('Intensitat', `<i>I</i> = <i>V</i>/<i>X</i><sub>L</sub> = ${n(V)} / ${n(X)}`, eng(I, 'A'))
+        + roRow('Desfasament (I endarrerida)', 'φ', '90°')
+        + roRow('Potència reactiva', `<i>Q</i> = <i>V</i>·<i>I</i> = <i>X</i><sub>L</sub>·<i>I</i><sup>2</sup>`, eng(V * I, 'VAr'))
+        + roRow('Potència activa', '<i>P</i>', '0 W');
+    } else {
+      X = 1 / (TAU * f * C); phi = -PI / 2; const I = V / X;
+      rows = roRow('Reactància capacitiva', `<i>X</i><sub>C</sub> = 1 / (2π·${n(f)}·${sv(C)})`, eng(X, 'Ω'))
+        + roRow('Intensitat', `<i>I</i> = <i>V</i>/<i>X</i><sub>C</sub> = ${n(V)} / ${n(X)}`, eng(I, 'A'))
+        + roRow('Desfasament (I avançada)', 'φ', '−90°')
+        + roRow('Potència reactiva', `<i>Q</i> = <i>V</i>·<i>I</i> = <i>X</i><sub>C</sub>·<i>I</i><sup>2</sup>`, eng(V * I, 'VAr'))
+        + roRow('Potència activa', '<i>P</i>', '0 W');
+    }
+    out.innerHTML = rows;
+    calc = { V, I: V / X, phi, f };
+  }
+  update();
+  const sc = $('canvas.scope', root), ph = $('canvas.phasor', root);
+  scrub(sc);
+  register(sc, () => drawScope(sc, { f: calc.f, theta: anim.theta, power: { pv: 0, pi: -calc.phi },
+    ch: [{ name: 'CH1 v', unit: 'V', color: PAL['sc-v'], traces: [{ peak: SQ2 * calc.V, phase: 0, color: PAL['sc-v'] }] },
+         { name: 'CH2 i', unit: 'A', color: PAL['sc-i'], traces: [{ peak: SQ2 * calc.I, phase: -calc.phi, color: PAL['sc-i'] }] }] }));
+  const vSub = { r: 'R', l: 'L', c: 'C' }[kind];
+  register(ph, () => drawPhasor(ph, { theta: anim.theta, rotate: true,
+    vecs: [{ mag: 1, ang: 0, color: PAL['sc-v'], label: 'V', sub: vSub, proj: true },
+           { mag: kind === 'r' ? 0.62 : 0.72, ang: -calc.phi, color: PAL['sc-i'], label: 'I', proj: true, lw: kind === 'r' ? 4 : 2.6, labelSide: kind === 'r' ? 1 : 0 }],
+    arc: kind === 'r' ? null : { a1: -calc.phi, a2: 0, color: PAL['sc-z'] } }));
+}
+elementLab('r'); elementLab('l'); elementLab('c');
+
+/* ---------- RLC series ---------- */
+(() => {
+  const root = $('#lab-rlc');
+  const st = { V: 230, R: 30, L: 0.1, C: 47e-6, f: 50 };
+  const view = { chain: true, parts: true, pow: false, zmode: 'Z' };
+  const ctl = $('.controls', root), out = $('.readouts', root), badge = $('[data-out=badge]', root);
+  const on = () => { update(); dirty(); };
+  const S = {
+    V: slider(ctl, { obj: st, key: 'V', sym: 'V', label: 'Tensió eficaç', unit: 'V', min: 1, max: 400 }, on),
+    R: slider(ctl, { obj: st, key: 'R', sym: 'R', label: 'Resistència', unit: 'Ω', min: 1, max: 1000, log: true }, on),
+    L: slider(ctl, { obj: st, key: 'L', sym: 'L', label: 'Inductància', unit: 'mH', scale: 1e-3, min: 1e-3, max: 2, log: true }, on),
+    C: slider(ctl, { obj: st, key: 'C', sym: 'C', label: 'Capacitat', unit: 'µF', scale: 1e-6, min: 1e-7, max: 1e-3, log: true }, on),
+    f: slider(ctl, { obj: st, key: 'f', sym: 'f', label: 'Freqüència', unit: 'Hz', min: 1, max: 5000, log: true }, on),
+  };
+  const Zf = f => Math.hypot(st.R, TAU * f * st.L - 1 / (TAU * f * st.C));
+  let c = {};
+  function update() {
+    const { V, R, L, C, f } = st;
+    const XL = TAU * f * L, XC = 1 / (TAU * f * C), X = XL - XC, Z = Math.hypot(R, X), I = V / Z, phi = Math.atan2(X, R);
+    c = { XL, XC, X, Z, I, phi, VR: R * I, VL: XL * I, VC: XC * I, f0: 1 / (TAU * Math.sqrt(L * C)) };
+    const pd = Math.abs(phi * DEG);
+    if (pd < 1) { badge.className = 'badge res'; badge.textContent = 'XL ≈ XC · comportament resistiu'; }
+    else if (phi > 0) { badge.className = 'badge ind'; badge.textContent = `Inductiu · I endarrerida ${n(pd)}°`; }
+    else { badge.className = 'badge cap'; badge.textContent = `Capacitiu · I avançada ${n(pd)}°`; }
+    const arith = c.VR + c.VL + c.VC;
+    const over = Math.max(c.VL, c.VC) > V;
+    out.innerHTML =
+      roRow('Reactància inductiva', `<i>X</i><sub>L</sub> = 2π·${n(f)}·${n(L)}`, eng(XL, 'Ω'))
+      + roRow('Reactància capacitiva', `<i>X</i><sub>C</sub> = 1 / (2π·${n(f)}·${sv(C)})`, eng(XC, 'Ω'))
+      + roRow('Mòdul de la impedància', `|<i>Z</i>| = √(${n(R)}<sup>2</sup> + (${n(XL)} − ${n(XC)})<sup>2</sup>)`, eng(Z, 'Ω'))
+      + roRow('Intensitat (comuna)', `<i>I</i> = <i>V</i>/|<i>Z</i>| = ${n(V)} / ${n(Z)}`, eng(I, 'A'))
+      + roRow('Desfasament', `φ = tan<sup>−1</sup>(${n(X)} / ${n(R)})`, deg(phi))
+      + roRow('Tensió a R', `<i>V</i><sub>R</sub> = <i>R</i>·<i>I</i>`, eng(c.VR, 'V'))
+      + roRow('Tensió a L', `<i>V</i><sub>L</sub> = <i>X</i><sub>L</sub>·<i>I</i>`, (c.VL > V ? '<span class="warn">' : '<span>') + eng(c.VL, 'V') + '</span>')
+      + roRow('Tensió a C', `<i>V</i><sub>C</sub> = <i>X</i><sub>C</sub>·<i>I</i>`, (c.VC > V ? '<span class="warn">' : '<span>') + eng(c.VC, 'V') + '</span>')
+      + roRow('Suma aritmètica (incorrecta)', `<i>V</i><sub>R</sub> + <i>V</i><sub>L</sub> + <i>V</i><sub>C</sub>`, `<s>${eng(arith, 'V')}</s>`)
+      + roRow('Suma fasorial (correcta)', `√(<i>V</i><sub>R</sub><sup>2</sup> + (<i>V</i><sub>L</sub> − <i>V</i><sub>C</sub>)<sup>2</sup>)`, eng(Math.hypot(c.VR, c.VL - c.VC), 'V'))
+      + roRow('Potència activa', `<i>P</i> = <i>R</i>·<i>I</i><sup>2</sup>`, eng(R * I * I, 'W'))
+      + roRow('Potència reactiva', `<i>Q</i> = (<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)·<i>I</i><sup>2</sup>`, eng(X * I * I, 'VAr'))
+      + roRow('Freqüència on X<sub>L</sub> = X<sub>C</sub>', `<i>f</i><sub>0</sub> = 1 / (2π√(<i>LC</i>))`, eng(c.f0, 'Hz'))
+      + (over ? `<div class="ro" style="grid-column:1/-1;border-bottom:0"><span class="ro-k" style="color:var(--v)">Fixa-t’hi: la tensió en ${c.VL > V && c.VC > V ? 'L i C' : c.VL > V ? 'la bobina' : 'el condensador'} és més gran que la de la font. Les tensions de L i C es compensen parcialment perquè estan en oposició (180°).</span></div>` : '');
+  }
+  update();
+
+  const PRESETS = {
+    ind: { V: 230, R: 20, L: 0.3, C: 100e-6, f: 50 },
+    cap: { V: 230, R: 30, L: 0.1, C: 47e-6, f: 50 },
+  };
+  for (const b of $$('[data-preset]', root)) b.addEventListener('click', () => {
+    const p = b.dataset.preset;
+    if (p === 'res') S.f.set(+c.f0.toPrecision(4));
+    else for (const k in PRESETS[p]) S[k].set(PRESETS[p][k]);
+    update(); dirty();
+  });
+  $('#ck-chain').addEventListener('change', e => { view.chain = e.target.checked; dirty(); });
+  $('#ck-parts').addEventListener('change', e => { view.parts = e.target.checked; dirty(); });
+  $('#ck-pow').addEventListener('change', e => { view.pow = e.target.checked; dirty(); });
+  for (const b of $$('[data-zmode]', root)) b.addEventListener('click', () => {
+    view.zmode = b.dataset.zmode;
+    for (const x of $$('[data-zmode]', root)) x.setAttribute('aria-pressed', String(x === b));
+    dirty();
+  });
+
+  const ph = $('#cv-rlc-ph'), sc = $('#cv-rlc-sc'), tri = $('#cv-rlc-tri'), fch = $('#cv-rlc-f');
+  scrub(sc);
+  register(ph, () => {
+    const P = PAL, vecs = [];
+    if (view.chain) {
+      vecs.push({ mag: c.VR, ang: 0, color: P['sc-r'], label: 'V', sub: 'R', lw: 2.4 });
+      vecs.push({ sx: c.VR, sy: 0, mag: c.VL, ang: PI / 2, color: P['sc-l'], label: 'V', sub: 'L', lw: 2.4, labelSide: -1 });
+      vecs.push({ sx: c.VR, sy: c.VL, mag: c.VC, ang: -PI / 2, color: P['sc-c'], label: 'V', sub: 'C', lw: 2.4, labelSide: 1 });
+    } else {
+      vecs.push({ mag: c.VR, ang: 0, color: P['sc-r'], label: 'V', sub: 'R', lw: 2.4 });
+      vecs.push({ mag: c.VL, ang: PI / 2, color: P['sc-l'], label: 'V', sub: 'L', lw: 2.4 });
+      vecs.push({ mag: c.VC, ang: -PI / 2, color: P['sc-c'], label: 'V', sub: 'C', lw: 2.4 });
+    }
+    vecs.push({ mag: st.V, ang: c.phi, color: P['sc-v'], label: 'V', lw: 3.2, proj: true });
+    let bound = 0; for (const v of vecs) bound = Math.max(bound, Math.hypot(v.sx || 0, v.sy || 0) + v.mag);
+    vecs.unshift({ mag: bound * 0.32, ang: 0, color: P['sc-i'], label: 'I', lw: 2, dash: [4, 3], proj: true, labelSide: 1 });
+    drawPhasor(ph, { theta: anim.theta, rotate: true, vecs, arc: { a1: 0, a2: c.phi, color: P['sc-z'] } });
+  });
+  register(sc, () => {
+    const P = PAL, vt = [{ peak: SQ2 * st.V, phase: c.phi, color: P['sc-v'], width: 2.6 }];
+    if (view.parts) vt.push({ peak: SQ2 * c.VR, phase: 0, color: P['sc-r'], width: 1.5 }, { peak: SQ2 * c.VL, phase: PI / 2, color: P['sc-l'], width: 1.5 }, { peak: SQ2 * c.VC, phase: -PI / 2, color: P['sc-c'], width: 1.5 });
+    drawScope(sc, { f: st.f, theta: anim.theta, power: view.pow ? { pv: c.phi, pi: 0 } : null,
+      ch: [{ name: 'CH1 v', unit: 'V', color: P['sc-v'], traces: vt }, { name: 'CH2 i', unit: 'A', color: P['sc-i'], traces: [{ peak: SQ2 * c.I, phase: 0, color: P['sc-i'], width: 2.2 }] }] });
+  });
+  register(tri, () => {
+    const { ctx, w, h } = prep(tri), P = PAL;
+    const R = st.R, X = c.X, XL = c.XL;
+    const top = Math.max(XL, 0), bot = Math.min(X, 0);
+    const m = 44;
+    const k = Math.min((w - 200) / R, (h - 2 * m) / Math.max(top - bot, 1e-9));
+    const ox = Math.max(90, (w - R * k - 100) / 2 + 40), oy = m + (h - 2 * m - (top - bot) * k) / 2 + top * k;
+    const SX = x => ox + x * k, SY = y => oy - y * k;
+    // ghost XL / XC
+    const gx = SX(R) + 14;
+    ctx.globalAlpha = .55;
+    arrow(ctx, gx, SY(0), gx, SY(XL), P.l, 1.4, 7, [3, 3]);
+    arrow(ctx, gx + 6, SY(XL), gx + 6, SY(XL - c.XC), P.c, 1.4, 7, [3, 3]);
+    ctx.globalAlpha = 1;
+    ctx.font = `italic 12px ${MATH}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    // arc
+    const ar = Math.min(32, R * k * 0.4);
+    if (Math.abs(c.phi) > 0.01) {
+      ctx.beginPath(); ctx.moveTo(SX(0), SY(0)); ctx.arc(SX(0), SY(0), ar, 0, -c.phi, c.phi > 0); ctx.closePath(); ctx.fillStyle = rgba(P.v, .22); ctx.fill();
+    }
+    arrow(ctx, SX(0), SY(0), SX(R), SY(0), P.r, 2.6, 10);
+    if (Math.abs(X) * k > 2) arrow(ctx, SX(R), SY(0), SX(R), SY(X), X > 0 ? P.l : P.c, 2.6, 10);
+    arrow(ctx, SX(0), SY(0), SX(R), SY(X), P.ink, 2.8, 11);
+    ctx.font = `500 11.5px ${MONO}`; ctx.fillStyle = P.r; ctx.textAlign = 'center'; ctx.textBaseline = X >= 0 ? 'top' : 'bottom';
+    ctx.fillText(`R = ${eng(R, 'Ω')}`, SX(R / 2), SY(0) + (X >= 0 ? 6 : -6));
+    ctx.fillStyle = X >= 0 ? P.l : P.c; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    if (Math.abs(X) > 1e-9) ctx.fillText(`X = ${n(X)} Ω`, gx + 18, SY(X / 2));
+    // Z label perpendicular to hypotenuse
+    const hx = SX(R / 2), hy = SY(X / 2), L = Math.hypot(R * k, X * k) || 1;
+    const side = X >= 0 ? 1 : -1, nx = side * (-X * k) / L, ny = side * (-R * k) / L; // normal away from the X leg
+    ctx.fillStyle = P.ink; ctx.textAlign = nx < 0 ? 'right' : 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(`|Z| = ${eng(c.Z, 'Ω')}`, hx + nx * 16, hy + ny * 16);
+    ctx.fillStyle = P.v; ctx.textAlign = 'left';
+    ctx.textAlign = 'right';
+    if (Math.abs(c.phi) > 0.01) ctx.fillText(`φ = ${deg(c.phi)}`, SX(0) - 8, SY(0));
+    ctx.font = `italic 600 11px ${MATH}`; ctx.fillStyle = P.l; ctx.textAlign = 'left';
+    ctx.fillText('XL', gx + 4, SY(XL) + 8);
+    ctx.fillStyle = P.c; ctx.fillText('XC', gx + 10, SY(XL - c.XC) - 8 * Math.sign(c.XC - XL || 1));
+  });
+  register(fch, () => {
+    const P = PAL;
+    const xmax = niceUp(Math.max(2.5 * c.f0, 1.25 * st.f));
+    const vl = [{ x: c.f0, label: 'f₀', color: P.muted }];
+    if (view.zmode === 'Z') {
+      const ymax = niceUp(Math.max(4 * st.R, 1.3 * c.Z));
+      drawChart(fch, { xmax, ymax, xunit: 'f (Hz)', yunit: 'Ω', vlines: vl,
+        curves: [{ fn: () => st.R, color: P.r, lw: 1.3, dash: [5, 4], noDot: true }, { fn: f => TAU * f * st.L, color: P.l, lw: 1.3, noDot: true }, { fn: f => 1 / (TAU * f * st.C), color: P.c, lw: 1.3, noDot: true }, { fn: Zf, color: P.ink, lw: 2.6 }],
+        marker: { x: st.f, label: `|Z| = ${eng(c.Z, 'Ω')}` } });
+    } else {
+      const ymax = niceUp(1.15 * st.V / st.R);
+      drawChart(fch, { xmax, ymax, xunit: 'f (Hz)', yunit: 'A', vlines: vl,
+        curves: [{ fn: f => st.V / Zf(f), color: P.i, lw: 2.6 }],
+        marker: { x: st.f, label: `I = ${eng(c.I, 'A')}` } });
+    }
+  }, true);
+})();
+
+/* ---------- pages ---------- */
+const pages = $$('.page'), navLinks = $$('.nav a');
+pages.forEach((pg, i) => {
+  const prev = pages[i - 1], next = pages[i + 1];
+  const nav = document.createElement('nav'); nav.className = 'pager'; nav.setAttribute('aria-label', 'Navegació entre apartats');
+  nav.innerHTML = (prev ? `<a class="prev" href="#${prev.id}"><small>← Anterior</small><b>${prev.dataset.title}</b></a>` : '')
+    + (next ? `<a class="next" href="#${next.id}"><small>Següent →</small><b>${next.dataset.title}</b></a>` : '');
+  pg.appendChild(nav);
+});
+function showPage(id) {
+  const cur = pages.find(p => p.id === id) || pages[0];
+  for (const p of pages) p.hidden = p !== cur;
+  for (const a of navLinks) { const on = a.getAttribute('href') === '#' + cur.id; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
+  const act = $('.nav a.on'), nav = $('.nav');
+  if (act) nav.scrollLeft = act.offsetLeft - nav.clientWidth / 2 + act.offsetWidth / 2;
+  document.title = cur === pages[0] ? 'Receptors en corrent altern' : `${cur.dataset.title} · Receptors en corrent altern`;
+  window.scrollTo(0, 0);
+  requestAnimationFrame(() => window.scrollTo(0, 0));
+  dirty();
+}
+function go(id) {
+  showPage(id);
+  try { history.replaceState(null, '', '#' + id); } catch (e) { /* sandboxed frame: ignore */ }
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  const id = a.getAttribute('href').slice(1);
+  if (!pages.some(p => p.id === id)) return;
+  e.preventDefault();
+  go(id);
+});
+addEventListener('hashchange', () => showPage(location.hash.slice(1)));
+showPage(location.hash.slice(1));
+
+/* ---------- quiz ---------- */
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const CONCEPTS = [
+  ['Circuit resistiu', 'En un circuit resistiu pur, quin desfasament hi ha entre la tensió i la intensitat?', ['0°: estan en fase', '90°, amb la intensitat endarrerida', '90°, amb la intensitat avançada', '180°'], 'En una resistència la tensió i la intensitat arriben al màxim alhora: φ = 0°.'],
+  ['Bobina', 'En una bobina ideal, la intensitat…', ['queda endarrerida 90° respecte de la tensió', 'està en fase amb la tensió', 's’avança 90° respecte de la tensió', 'queda endarrerida 45°'], 'La bobina s’oposa a les variacions de corrent: la intensitat arriba al màxim un quart de període després que la tensió.'],
+  ['Condensador', 'En un condensador ideal, la intensitat…', ['s’avança 90° respecte de la tensió', 'està en fase amb la tensió', 'queda endarrerida 90° respecte de la tensió', 'és sempre zero'], 'En el condensador la intensitat s’avança 90° (o la tensió queda endarrerida 90°).'],
+  ['Bobina', 'Si dupliquem la freqüència, la reactància inductiva X<sub>L</sub>…', ['es duplica', 'es redueix a la meitat', 'no canvia', 'es quadruplica'], 'X<sub>L</sub> = 2πfL és proporcional a f.'],
+  ['Condensador', 'Si dupliquem la freqüència, la reactància capacitiva X<sub>C</sub>…', ['es redueix a la meitat', 'es duplica', 'no canvia', 'es fa zero'], 'X<sub>C</sub> = 1/(2πfC) és inversament proporcional a f.'],
+  ['Impedància', 'Quin component té una impedància que no depèn de la freqüència?', ['La resistència', 'La bobina', 'El condensador', 'Cap dels tres'], 'La impedància d’una resistència és fixa. Les de la bobina i el condensador varien amb f.'],
+  ['Potència', 'En quina unitat es mesura la potència reactiva?', ['Voltampere reactiu (VAr)', 'Watt (W)', 'Joule (J)', 'Ohm (Ω)'], 'La potència reactiva Q es mesura en VAr. La potència activa P, en watts.'],
+  ['Potència', 'Quina potència activa consumeix una bobina ideal?', ['Zero', 'V · I', 'X<sub>L</sub> · I<sup>2</sup>', 'V<sup>2</sup> / X<sub>L</sub>'], 'L’energia va i torna entre la font i el camp magnètic: el consum net és nul. V·I és la potència reactiva.'],
+  ['Condensador', 'En corrent continu, un condensador carregat es comporta com…', ['un circuit obert', 'un curtcircuit', 'una resistència petita', 'una bobina'], 'Amb f = 0, X<sub>C</sub> és infinita: no passa corrent.'],
+  ['Bobina', 'A freqüències molt baixes, una bobina ideal es comporta com…', ['un fil conductor', 'un circuit obert', 'un condensador', 'una resistència infinita'], 'Amb f → 0, X<sub>L</sub> = 2πfL → 0.'],
+  ['RLC sèrie', 'En un circuit RLC sèrie, quina magnitud és comuna als tres elements?', ['La intensitat', 'La tensió', 'La reactància', 'La potència'], 'En sèrie hi circula el mateix corrent. Per això es pren I com a referència dels fasors.'],
+  ['RLC sèrie', 'Per què no podem sumar V<sub>R</sub> + V<sub>L</sub> + V<sub>C</sub> aritmèticament?', ['Perquè no estan en fase', 'Perquè tenen unitats diferents', 'Perquè V<sub>C</sub> sempre és negativa', 'Sí que es poden sumar'], 'Són fasors amb angles diferents (0°, +90°, −90°): cal fer la suma fasorial.'],
+  ['RLC sèrie', 'Si en un circuit RLC sèrie X<sub>L</sub> &gt; X<sub>C</sub>, el comportament global és…', ['inductiu', 'capacitiu', 'resistiu pur', 'impossible de saber'], 'X = X<sub>L</sub> − X<sub>C</sub> &gt; 0: φ positiu i la intensitat queda endarrerida.'],
+  ['Impedància', 'Al triangle d’impedàncies, com es dibuixa el vector X<sub>C</sub>?', ['Vertical cap avall', 'Vertical cap amunt', 'Horitzontal cap a la dreta', 'Inclinat 45°'], 'R és horitzontal, X<sub>L</sub> vertical amunt i X<sub>C</sub> vertical avall.'],
+  ['Impedància', 'En quina unitat es mesura la impedància?', ['Ohm (Ω)', 'Henry (H)', 'Farad (F)', 'Hertz (Hz)'], 'Totes les oposicions (R, X<sub>L</sub>, X<sub>C</sub> i Z) es mesuren en ohms.'],
+];
+const fx = (x, s = 4) => n(x, s);
+const CALCS = [
+  () => { const f = rnd([50, 60, 100, 250, 500, 1000]), Lm = rnd([10, 22, 47, 100, 150, 220, 470]), L = Lm / 1000, XL = TAU * f * L;
+    return { topic: 'Bobina', prompt: `Una bobina ideal de <b>L = ${Lm} mH</b> es connecta a una font de <b>f = ${f} Hz</b>. Calcula la seva reactància inductiva.`,
+      fields: [{ label: '<i>X</i><sub>L</sub>', unit: 'Ω', value: XL }], sol: [`<i>X</i><sub>L</sub> = 2π·<i>f</i>·<i>L</i> = 2π · ${f} · ${fx(L)} = <b>${fx(XL)} Ω</b>`] }; },
+  () => { const f = rnd([50, 60, 100, 500, 1000]), Cu = rnd([1, 2.2, 4.7, 10, 22, 47, 100]), C = Cu * 1e-6, XC = 1 / (TAU * f * C);
+    return { topic: 'Condensador', prompt: `Calcula la reactància d’un condensador de <b>C = ${n(Cu)} µF</b> a una freqüència de <b>f = ${f} Hz</b>.`,
+      fields: [{ label: '<i>X</i><sub>C</sub>', unit: 'Ω', value: XC }], sol: [`<i>X</i><sub>C</sub> = 1 / (2π·<i>f</i>·<i>C</i>) = 1 / (2π · ${f} · ${n(Cu)}·10<sup>−6</sup>) = <b>${fx(XC)} Ω</b>`] }; },
+  () => { const V = rnd([12, 24, 110, 125, 230]), R = rnd([10, 22, 47, 100, 220, 470]), I = V / R, P = V * I;
+    return { topic: 'Circuit resistiu', prompt: `Una resistència de <b>R = ${R} Ω</b> està connectada a <b>V = ${V} V</b> de corrent altern. Calcula la intensitat i la potència activa.`,
+      fields: [{ label: '<i>I</i>', unit: 'A', value: I }, { label: '<i>P</i>', unit: 'W', value: P }],
+      sol: [`<i>I</i> = <i>V</i>/<i>R</i> = ${V} / ${R} = <b>${fx(I)} A</b>`, `<i>P</i> = <i>V</i>·<i>I</i> = ${V} · ${fx(I)} = <b>${fx(P)} W</b> (també <i>R</i>·<i>I</i><sup>2</sup> o <i>V</i><sup>2</sup>/<i>R</i>)`] }; },
+  () => { const V = 230, f = 50, Lm = rnd([50, 100, 200, 318, 500]), L = Lm / 1000, XL = TAU * f * L, I = V / XL, Q = V * I;
+    return { topic: 'Bobina', prompt: `Una bobina ideal de <b>${Lm} mH</b> es connecta a la xarxa (<b>230 V, 50 Hz</b>). Calcula X<sub>L</sub>, la intensitat i la potència reactiva.`,
+      fields: [{ label: '<i>X</i><sub>L</sub>', unit: 'Ω', value: XL }, { label: '<i>I</i>', unit: 'A', value: I }, { label: '<i>Q</i>', unit: 'VAr', value: Q }],
+      sol: [`<i>X</i><sub>L</sub> = 2π · 50 · ${fx(L)} = <b>${fx(XL)} Ω</b>`, `<i>I</i> = <i>V</i>/<i>X</i><sub>L</sub> = 230 / ${fx(XL)} = <b>${fx(I)} A</b>`, `<i>Q</i> = <i>V</i>·<i>I</i> = 230 · ${fx(I)} = <b>${fx(Q)} VAr</b>`] }; },
+  () => { const V = rnd([12, 24, 230]), f = rnd([50, 100, 1000]), Cu = rnd([10, 22, 47, 100]), XC = 1 / (TAU * f * Cu * 1e-6), I = V / XC;
+    return { topic: 'Condensador', prompt: `Un condensador de <b>${Cu} µF</b> es connecta a <b>${V} V, ${f} Hz</b>. Calcula X<sub>C</sub> i la intensitat.`,
+      fields: [{ label: '<i>X</i><sub>C</sub>', unit: 'Ω', value: XC }, { label: '<i>I</i>', unit: 'A', value: I }],
+      sol: [`<i>X</i><sub>C</sub> = 1 / (2π · ${f} · ${Cu}·10<sup>−6</sup>) = <b>${fx(XC)} Ω</b>`, `<i>I</i> = <i>V</i>/<i>X</i><sub>C</sub> = ${V} / ${fx(XC)} = <b>${fx(I)} A</b>`] }; },
+  () => { const R = rnd([3, 4, 6, 8, 12, 20, 30]); let XL = rnd([5, 10, 15, 20, 30, 40]), XC = rnd([2, 6, 10, 18, 25, 50]); if (XL === XC) XC += 4;
+    const X = XL - XC, Z = Math.hypot(R, X), phi = Math.atan2(X, R) * DEG;
+    return { topic: 'RLC sèrie', prompt: `Un circuit RLC sèrie té <b>R = ${R} Ω</b>, <b>X<sub>L</sub> = ${XL} Ω</b> i <b>X<sub>C</sub> = ${XC} Ω</b>. Calcula el mòdul de la impedància i el desfasament (amb signe).`,
+      fields: [{ label: '|<i>Z</i>|', unit: 'Ω', value: Z }, { label: 'φ', unit: '°', value: phi, abs: 1 }],
+      sol: [`|<i>Z</i>| = √(${R}<sup>2</sup> + (${XL} − ${XC})<sup>2</sup>) = √(${R * R} + ${X * X}) = <b>${fx(Z)} Ω</b>`, `φ = tan<sup>−1</sup>((${XL} − ${XC}) / ${R}) = <b>${fx(phi, 3)}°</b> → comportament ${X > 0 ? 'inductiu' : 'capacitiu'}`] }; },
+  () => { const V = 230, f = 50, R = rnd([20, 30, 40, 50]), Lm = rnd([100, 150, 200, 300]), Cu = rnd([22, 47, 68, 100]);
+    const XL = TAU * f * Lm / 1000, XC = 1 / (TAU * f * Cu * 1e-6), Z = Math.hypot(R, XL - XC), I = V / Z;
+    return { topic: 'RLC sèrie', prompt: `Un circuit RLC sèrie amb <b>R = ${R} Ω</b>, <b>L = ${Lm} mH</b> i <b>C = ${Cu} µF</b> es connecta a <b>230 V, 50 Hz</b>. Calcula X<sub>L</sub>, X<sub>C</sub>, |Z| i la intensitat.`,
+      fields: [{ label: '<i>X</i><sub>L</sub>', unit: 'Ω', value: XL }, { label: '<i>X</i><sub>C</sub>', unit: 'Ω', value: XC }, { label: '|<i>Z</i>|', unit: 'Ω', value: Z }, { label: '<i>I</i>', unit: 'A', value: I }],
+      sol: [`<i>X</i><sub>L</sub> = 2π · 50 · ${fx(Lm / 1000)} = <b>${fx(XL)} Ω</b>`, `<i>X</i><sub>C</sub> = 1 / (2π · 50 · ${Cu}·10<sup>−6</sup>) = <b>${fx(XC)} Ω</b>`, `|<i>Z</i>| = √(${R}<sup>2</sup> + (${fx(XL)} − ${fx(XC)})<sup>2</sup>) = <b>${fx(Z)} Ω</b>`, `<i>I</i> = 230 / ${fx(Z)} = <b>${fx(I)} A</b>`] }; },
+];
+const qs = { filter: 'all', ok: 0, n: 0, lastConcept: -1 };
+const card = $('#q-card');
+function updScore() { $('#q-ok').textContent = qs.ok; $('#q-n').textContent = qs.n; }
+function newQ() {
+  const useConcept = qs.filter === 'concept' || (qs.filter === 'all' && Math.random() < 0.45);
+  if (useConcept) {
+    let i; do { i = Math.floor(Math.random() * CONCEPTS.length); } while (i === qs.lastConcept);
+    qs.lastConcept = i;
+    const [topic, prompt, opts, why] = CONCEPTS[i];
+    const order = shuffle(opts.map((t, k) => ({ t, ok: k === 0 })));
+    card.innerHTML = `<span class="q-tag">Concepte · ${topic}</span><p class="q-prompt">${prompt}</p>
+      <div class="q-opts">${order.map((o, k) => `<button class="q-opt" type="button" data-k="${k}">${o.t}</button>`).join('')}</div>
+      <div class="q-fb" hidden></div><div class="q-actions"><button class="btn pri" type="button" data-act="next">Següent pregunta</button></div>`;
+    for (const b of $$('.q-opt', card)) b.addEventListener('click', () => {
+      const pick = order[+b.dataset.k];
+      $$('.q-opt', card).forEach((x, k) => { x.disabled = true; if (order[k].ok) x.classList.add('ok'); });
+      if (!pick.ok) b.classList.add('no');
+      qs.n++; if (pick.ok) qs.ok++; updScore();
+      const fb = $('.q-fb', card); fb.hidden = false;
+      fb.innerHTML = `<b style="color:var(${pick.ok ? '--ok' : '--bad'})">${pick.ok ? 'Correcte.' : 'No és correcte.'}</b> ${why}`;
+    });
+  } else {
+    const q = rnd(CALCS)();
+    card.innerHTML = `<span class="q-tag">Càlcul · ${q.topic}</span><p class="q-prompt">${q.prompt}</p>
+      <div class="q-fields">${q.fields.map((f, k) => `<label class="q-field"><span>${f.label} =</span><input id="q-in-${k}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><span class="u">${f.unit}</span><span class="mark"></span></label>`).join('')}</div>
+      <div class="q-fb" hidden></div>
+      <div class="q-actions"><button class="btn pri" type="button" data-act="check">Comprova</button><button class="btn" type="button" data-act="sol">Mostra la solució</button><button class="btn" type="button" data-act="next">Següent pregunta</button></div>`;
+    let counted = false;
+    const showSol = () => { const fb = $('.q-fb', card); fb.hidden = false; fb.innerHTML = '<b>Resolució</b>' + q.sol.map(s => `<div class="eqline">${s}</div>`).join(''); };
+    const check = () => {
+      let all = true;
+      q.fields.forEach((f, k) => {
+        const inp = $('#q-in-' + k, card), mk = inp.parentElement.querySelector('.mark');
+        const v = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.'));
+        const ok = isFinite(v) && Math.abs(v - f.value) <= (f.abs != null ? f.abs : Math.max(0.02 * Math.abs(f.value), 1e-9));
+        inp.classList.toggle('ok', ok); inp.classList.toggle('no', !ok);
+        mk.className = 'mark ' + (ok ? 'ok' : 'no'); mk.textContent = ok ? '✓ correcte' : (isFinite(v) ? '✗ revisa-ho' : '✗ falta el valor');
+        if (!ok) all = false;
+      });
+      if (!counted) { counted = true; qs.n++; if (all) qs.ok++; updScore(); }
+      if (all) showSol();
+    };
+    $('[data-act=check]', card).addEventListener('click', check);
+    $('[data-act=sol]', card).addEventListener('click', () => { if (!counted) { counted = true; qs.n++; updScore(); } showSol(); });
+    $$('input', card).forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') check(); }));
+  }
+  $('[data-act=next]', card).addEventListener('click', newQ);
+}
+for (const b of $$('[data-qf]')) b.addEventListener('click', () => {
+  qs.filter = b.dataset.qf;
+  for (const x of $$('[data-qf]')) x.setAttribute('aria-pressed', String(x === b));
+  newQ();
+});
+newQ();
+
+requestAnimationFrame(frame);
+})();
+</script>
