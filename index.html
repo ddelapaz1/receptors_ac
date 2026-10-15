@@ -91,7 +91,7 @@ h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.02; font-stretch: 118%; f
 .mini[href="#resistiu"], .toc a[href="#resistiu"] { --acc: var(--r); }
 .mini[href="#inductiu"], .toc a[href="#inductiu"] { --acc: var(--l); }
 .mini[href="#capacitiu"], .toc a[href="#capacitiu"] { --acc: var(--c); }
-.toc a[href="#impedancia"] { --acc: var(--ink); } .toc a[href="#rlc"] { --acc: var(--v); } .toc a[href="#practica"] { --acc: var(--i); }
+.toc a[href="#impedancia"] { --acc: var(--ink); } .toc a[href="#rlc"], .toc a[href="#paralel"] { --acc: var(--v); } .toc a[href="#practica"] { --acc: var(--i); }
 .mini canvas { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 6px; }
 .mini b { font-family: var(--f-display); font-stretch: 110%; font-size: 15px; display: block; }
 .mini span { font-size: 13px; color: var(--muted); }
@@ -203,9 +203,12 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px co
 .checks label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 .checks label:hover { color: var(--ink); }
 .checks input { accent-color: var(--ink); width: 16px; height: 16px; }
+.ctl.off { opacity: .4; pointer-events: none; }
+.rlc-lab .insight[hidden] { display: none; }
 .side-h { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 .warn { color: var(--v); font-weight: 600; }
-.rlc-theory { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px 40px; margin-bottom: 26px; }
+.rlc-theory { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 40px; margin-bottom: 26px; }
+@media (max-width: 760px) { .rlc-theory { grid-template-columns: minmax(0, 1fr); } }
 .rlc-theory > div { min-width: 0; }
 
 /* quiz */
@@ -305,6 +308,7 @@ footer { border-top: 1px solid var(--rule); padding-block: 28px 48px; font-size:
       <a href="#inductiu">Inductiu</a>
       <a href="#capacitiu">Capacitiu</a>
       <a href="#rlc">RLC sèrie</a>
+      <a href="#paralel">RLC paral·lel</a>
       <a href="#practica">Practica</a>
     </nav>
     <div class="tools">
@@ -337,7 +341,8 @@ footer { border-top: 1px solid var(--rule); padding-block: 28px 48px; font-size:
     <li><a href="#resistiu"><span class="num">1.3.1</span><b>Circuit resistiu pur</b><span>Llei d’Ohm, tensió i intensitat en fase, potència activa.</span></a></li>
     <li><a href="#inductiu"><span class="num">1.3.2</span><b>Circuit inductiu pur</b><span>Reactància inductiva, intensitat endarrerida 90°, potència reactiva.</span></a></li>
     <li><a href="#capacitiu"><span class="num">1.3.3</span><b>Circuit capacitiu pur</b><span>Reactància capacitiva, intensitat avançada 90°.</span></a></li>
-    <li><a href="#rlc"><span class="num">1.3.4</span><b>Circuit mixt RLC sèrie</b><span>Suma fasorial, impedància, desfasament i triangle d’impedàncies.</span></a></li>
+    <li><a href="#rlc"><span class="num">1.3.4</span><b>Circuit mixt RLC sèrie</b><span>Suma fasorial de tensions, impedància, potències i ressonància.</span></a></li>
+    <li><a href="#paralel"><span class="num">1.3.5</span><b>Circuit mixt RLC paral·lel</b><span>Suma fasorial de corrents, potències i ressonància paral·lel.</span></a></li>
     <li><a href="#practica"><span class="num">Exercicis</span><b>Posa’t a prova</b><span>Preguntes de conceptes i problemes de càlcul amb correcció.</span></a></li>
   </ol>
 </section>
@@ -424,6 +429,7 @@ footer { border-top: 1px solid var(--rule); padding-block: 28px 48px; font-size:
       <h3>Potència reactiva</h3>
       <p>Una bobina ideal no consumeix potència activa neta: l’energia va i torna entre la font i el camp magnètic. La potència associada és la <b>reactiva</b>, en voltamperes reactius (VAr):</p>
       <div class="eqs"><span class="eq"><i>Q</i> = <i>V</i> · <i>I</i></span><span class="eq"><i>Q</i> = <i>X</i><sub>L</sub> · <i>I</i><sup>2</sup></span></div>
+      <p class="note"><b>I una bobina real?</b> El fil de la bobina té resistència, i per això el desfasament és menor de 90°. Ho pots veure al <a href="#rlc">circuit RLC sèrie</a> amb l’opció <b>Sense condensador</b>.</p>
     </div>
     <div class="lab" id="lab-l">
       <div class="lab-head"><span class="lab-title">Banc de proves · L</span>
@@ -486,9 +492,21 @@ footer { border-top: 1px solid var(--rule); padding-block: 28px 48px; font-size:
         <span class="eq">φ = tan<sup>−1</sup> <span class="frac"><span><i>X</i><sub>L</sub> − <i>X</i><sub>C</sub></span><span><i>R</i></span></span></span>
       </div>
     </div>
+    <div class="theory">
+      <h3>Potències</h3>
+      <div class="eqs"><span class="eq"><i>P</i> = <i>R</i>·<i>I</i><sup>2</sup></span><span class="eq"><i>Q</i> = (<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)·<i>I</i><sup>2</sup></span><span class="eq"><i>S</i> = <i>V</i>·<i>I</i> = <span class="sqrt">√<span><i>P</i><sup>2</sup> + <i>Q</i><sup>2</sup></span></span></span><span class="eq">cos φ = <span class="frac"><span><i>P</i></span><span><i>S</i></span></span></span></div>
+      <p>La potència aparent <var>S</var> es mesura en voltamperes (VA). El <b>factor de potència</b> cos φ indica quina part de <var>S</var> es converteix en potència activa. El triangle de potències té la mateixa forma que el d’impedàncies, perquè cada costat queda multiplicat per <var>I</var><sup>2</sup>.</p>
+    </div>
+    <div class="theory">
+      <h3>Ressonància</h3>
+      <p>Com que <var>X</var><sub>L</sub> creix amb la freqüència i <var>X</var><sub>C</sub> disminueix, hi ha una freqüència en què són iguals. És la <b>freqüència de ressonància</b>:</p>
+      <div class="eqs"><span class="eq"><i>X</i><sub>L</sub> = <i>X</i><sub>C</sub> → <i>f</i><sub>0</sub> = <span class="frac"><span>1</span><span>2π<span class="sqrt">√<span><i>LC</i></span></span></span></span></span></div>
+      <p class="key">A la ressonància les reactàncies s’anul·len: |Z| = R (mínima), la intensitat és màxima i φ = 0°. V<sub>L</sub> i V<sub>C</sub> poden ser molt més grans que la tensió de la font (sobretensió).</p>
+      <p class="note"><b>Bobina real.</b> El fil d’una bobina té resistència, i per això es comporta com un circuit RL sèrie amb un desfasament entre 0° i 90°. Marca l’opció <b>Sense condensador</b> al banc de proves per veure-ho.</p>
+    </div>
   </div>
 
-  <div class="lab" id="lab-rlc">
+  <div class="lab rlc-lab" id="lab-rlc">
     <div class="lab-head"><span class="lab-title">Banc de proves · RLC sèrie</span><span class="badge" data-out="badge"></span></div>
     <div class="rlc-grid">
       <div class="rlc-side">
@@ -498,28 +516,106 @@ footer { border-top: 1px solid var(--rule); padding-block: 28px 48px; font-size:
           <div class="btns">
             <button class="btn" type="button" data-preset="ind">Predomina L</button>
             <button class="btn" type="button" data-preset="cap">Predomina C</button>
-            <button class="btn" type="button" data-preset="res">X<sub>L</sub> = X<sub>C</sub></button>
+            <button class="btn" type="button" data-preset="res">Ressonància (<i>f</i><sub>0</sub>)</button>
+            <button class="btn" type="button" data-preset="coil">Bobina real</button>
           </div>
+        </div>
+        <div>
+          <div class="side-h">Circuit</div>
+          <div class="checks"><label><input type="checkbox" data-opt="noC"> Sense condensador (bobina real: R + L)</label></div>
         </div>
         <div>
           <div class="side-h">Visualització</div>
           <div class="checks">
-            <label><input type="checkbox" id="ck-chain" checked> Fasors encadenats (cap a cua)</label>
-            <label><input type="checkbox" id="ck-parts" checked> Tensions parcials a l’oscil·loscopi</label>
-            <label><input type="checkbox" id="ck-pow"> Potència p(t)</label>
+            <label><input type="checkbox" data-view="chain" checked> Fasors encadenats (cap a cua)</label>
+            <label><input type="checkbox" data-view="parts" checked> Tensions parcials a l’oscil·loscopi</label>
+            <label><input type="checkbox" data-view="pow"> Potència p(t)</label>
+            <label><input type="checkbox" data-view="cur"> Cursors de mesura (Δt)</label>
           </div>
         </div>
       </div>
       <div class="rlc-main">
         <div class="screens2">
-          <figure><canvas class="phasor" id="cv-rlc-ph" aria-label="Diagrama de fasors de tensions"></canvas><figcaption><span>Fasors de tensió (ref. <var>I</var>)</span></figcaption></figure>
-          <figure><canvas class="scope" id="cv-rlc-sc" aria-label="Oscil·loscopi RLC"></canvas><figcaption>
+          <figure><canvas class="phasor" data-cv="ph" aria-label="Diagrama de fasors de tensions"></canvas><figcaption><span>Fasors de tensió (ref. <var>I</var>)</span></figcaption></figure>
+          <figure><canvas class="scope" data-cv="sc" aria-label="Oscil·loscopi RLC"></canvas><figcaption>
             <span class="legend"><span><i style="background:var(--sc-v)"></i>v</span><span><i style="background:var(--sc-i)"></i>i</span><span><i style="background:var(--sc-r)"></i>v<sub>R</sub></span><span><i style="background:var(--sc-l)"></i>v<sub>L</sub></span><span><i style="background:var(--sc-c)"></i>v<sub>C</sub></span></span></figcaption></figure>
         </div>
+        <div class="insight" data-out="cur" hidden><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 4.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span><b>Mesura el desfasament.</b> Arrossega els cursors <b>1</b> i <b>2</b> fins als passos per zero de pujada de <var>v</var> i de <var>i</var>; s’hi enganxen quan hi són a prop. Llavors <span class="m-up">φ = 360° · Δ<i>t</i> / <i>T</i></span>. Compara-ho amb el desfasament calculat.</span></div>
         <div class="screens2">
-          <figure><canvas class="tri" id="cv-rlc-tri" aria-label="Triangle d'impedàncies"></canvas><figcaption><span>Triangle d’impedàncies</span></figcaption></figure>
-          <figure><canvas class="chart" id="cv-rlc-f" aria-label="Resposta en freqüència"></canvas><figcaption><span>Resposta en freqüència</span>
+          <figure><canvas class="tri" data-cv="tri" aria-label="Triangle d'impedàncies o de potències"></canvas><figcaption><span data-out="tri-cap">Triangle d’impedàncies</span>
+            <span class="btns" role="group" aria-label="Triangle"><button class="btn" type="button" data-tmode="Z" aria-pressed="true">Z</button><button class="btn" type="button" data-tmode="S" aria-pressed="false">Potències</button></span></figcaption></figure>
+          <figure><canvas class="chart" data-cv="f" aria-label="Resposta en freqüència"></canvas><figcaption><span>Resposta en freqüència</span>
             <span class="btns" role="group" aria-label="Magnitud"><button class="btn" type="button" data-zmode="Z" aria-pressed="true">|Z|(f)</button><button class="btn" type="button" data-zmode="I" aria-pressed="false">I(f)</button></span></figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="readouts"></div>
+  </div>
+</section>
+
+<!-- 1.3.5 RLC paral·lel -->
+<section class="sec page" id="paralel" data-title="Circuit RLC paral·lel">
+  <div class="sec-head"><span class="num">1.3.5</span><h2>Circuit mixt RLC paral·lel</h2></div>
+  <div class="rlc-theory">
+    <div class="theory">
+      <p>En un circuit <b>paral·lel</b>, els tres elements estan connectats als mateixos borns. Ara la magnitud comuna és la <b>tensió</b>, i per això la prenem com a referència dels fasors. Cada branca té el seu corrent:</p>
+      <div class="eqs"><span class="eq"><i>I</i><sub>R</sub> = <span class="frac"><span><i>V</i></span><span><i>R</i></span></span></span><span class="eq"><i>I</i><sub>L</sub> = <span class="frac"><span><i>V</i></span><span><i>X</i><sub>L</sub></span></span></span><span class="eq"><i>I</i><sub>C</sub> = <span class="frac"><span><i>V</i></span><span><i>X</i><sub>C</sub></span></span></span></div>
+      <p class="key">Els corrents de branca no es poden sumar aritmèticament: el corrent total és la suma fasorial. I<sub>L</sub> (−90°) i I<sub>C</sub> (+90°) estan en oposició.</p>
+    </div>
+    <div class="theory">
+      <p>El corrent total, el desfasament i la impedància equivalent són:</p>
+      <div class="eqs">
+        <span class="eq"><i>I</i> = <span class="sqrt">√<span><i>I</i><sub>R</sub><sup>2</sup> + (<i>I</i><sub>L</sub> − <i>I</i><sub>C</sub>)<sup>2</sup></span></span></span>
+        <span class="eq">φ = tan<sup>−1</sup> <span class="frac"><span><i>I</i><sub>L</sub> − <i>I</i><sub>C</sub></span><span><i>I</i><sub>R</sub></span></span></span>
+        <span class="eq">|<i>Z</i>| = <span class="frac"><span><i>V</i></span><span><i>I</i></span></span></span>
+      </div>
+      <p>Si <var>I</var><sub>L</sub> &gt; <var>I</var><sub>C</sub>, el circuit és <b class="tag-l">inductiu</b> (I endarrerida). Si <var>I</var><sub>C</sub> &gt; <var>I</var><sub>L</sub>, és <b class="tag-c">capacitiu</b> (I avançada). Fixa-t’hi: en paral·lel domina l’element de <b>reactància més petita</b>, perquè és el que deixa passar més corrent.</p>
+    </div>
+    <div class="theory">
+      <h3>Potències</h3>
+      <div class="eqs"><span class="eq"><i>P</i> = <i>V</i>·<i>I</i><sub>R</sub></span><span class="eq"><i>Q</i> = <i>V</i>·(<i>I</i><sub>L</sub> − <i>I</i><sub>C</sub>)</span><span class="eq"><i>S</i> = <i>V</i>·<i>I</i></span><span class="eq">cos φ = <span class="frac"><span><i>P</i></span><span><i>S</i></span></span></span></div>
+    </div>
+    <div class="theory">
+      <h3>Ressonància paral·lel</h3>
+      <p>També passa a <span class="eq" style="font-size:18px"><i>f</i><sub>0</sub> = 1 / (2π√<i>LC</i>)</span>, però l’efecte és l’invers que en sèrie:</p>
+      <p class="key">I<sub>L</sub> = I<sub>C</sub> i s’anul·len: el corrent total és mínim (I = V/R) i la impedància és màxima (|Z| = R). L’energia reactiva circula entre la bobina i el condensador sense passar per la font.</p>
+    </div>
+  </div>
+
+  <div class="lab rlc-lab" id="lab-par">
+    <div class="lab-head"><span class="lab-title">Banc de proves · RLC paral·lel</span><span class="badge" data-out="badge"></span></div>
+    <div class="rlc-grid">
+      <div class="rlc-side">
+        <div class="controls"></div>
+        <div>
+          <div class="side-h">Exemples</div>
+          <div class="btns">
+            <button class="btn" type="button" data-preset="ind">Predomina L</button>
+            <button class="btn" type="button" data-preset="cap">Predomina C</button>
+            <button class="btn" type="button" data-preset="res">Ressonància (<i>f</i><sub>0</sub>)</button>
+          </div>
+        </div>
+        <div>
+          <div class="side-h">Visualització</div>
+          <div class="checks">
+            <label><input type="checkbox" data-view="chain" checked> Fasors encadenats (cap a cua)</label>
+            <label><input type="checkbox" data-view="parts" checked> Corrents de branca a l’oscil·loscopi</label>
+            <label><input type="checkbox" data-view="pow"> Potència p(t)</label>
+            <label><input type="checkbox" data-view="cur"> Cursors de mesura (Δt)</label>
+          </div>
+        </div>
+      </div>
+      <div class="rlc-main">
+        <div class="screens2">
+          <figure><canvas class="phasor" data-cv="ph" aria-label="Diagrama de fasors de corrents"></canvas><figcaption><span>Fasors de corrent (ref. <var>V</var>)</span></figcaption></figure>
+          <figure><canvas class="scope" data-cv="sc" aria-label="Oscil·loscopi RLC paral·lel"></canvas><figcaption>
+            <span class="legend"><span><i style="background:var(--sc-v)"></i>v</span><span><i style="background:var(--sc-i)"></i>i</span><span><i style="background:var(--sc-r)"></i>i<sub>R</sub></span><span><i style="background:var(--sc-l)"></i>i<sub>L</sub></span><span><i style="background:var(--sc-c)"></i>i<sub>C</sub></span></span></figcaption></figure>
+        </div>
+        <div class="insight" data-out="cur" hidden><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v5M8 4.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span><b>Mesura el desfasament.</b> Arrossega els cursors <b>1</b> i <b>2</b> fins als passos per zero de pujada de <var>v</var> i de <var>i</var>; s’hi enganxen quan hi són a prop. Llavors <span class="m-up">φ = 360° · Δ<i>t</i> / <i>T</i></span>. Compara-ho amb el desfasament calculat.</span></div>
+        <div class="screens2">
+          <figure><canvas class="tri" data-cv="tri" aria-label="Triangle de potències"></canvas><figcaption><span data-out="tri-cap">Triangle de potències</span></figcaption></figure>
+          <figure><canvas class="chart" data-cv="f" aria-label="Resposta en freqüència"></canvas><figcaption><span>Resposta en freqüència</span>
+            <span class="btns" role="group" aria-label="Magnitud"><button class="btn" type="button" data-zmode="Z" aria-pressed="false">|Z|(f)</button><button class="btn" type="button" data-zmode="I" aria-pressed="true">I(f)</button></span></figcaption></figure>
         </div>
       </div>
     </div>
@@ -679,6 +775,22 @@ function drawScope(cv, o) {
       dots.push([t.color, s, t.phase]);
     }
   }
+  cv._phases = dots.map(d => d[2]);
+  if (o.cursors) {
+    const [a1, a2] = o.cursors;
+    ctx.font = `600 11px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    [a1, a2].forEach((a, k) => {
+      const x = Math.round(X(a)) + .5;
+      ctx.strokeStyle = P['sc-z']; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      ctx.fillStyle = P['sc-z']; ctx.fillRect(x - 9, h - 64, 18, 18);
+      ctx.fillStyle = P['sc-bg']; ctx.fillText(String(k + 1), x, h - 55);
+    });
+    const da = Math.abs(a2 - a1), T = 1 / o.f;
+    ctx.fillStyle = rgba(P['sc-bg'], .85); ctx.fillRect(4, h - 40, 200, 36);
+    ctx.fillStyle = P['sc-z']; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`Δt = ${eng(da / TAU * T, 's')} · T = ${eng(T, 's')}`, 8, h - 22);
+    ctx.fillText(`360°·Δt/T = ${n(da * DEG, 3)}°`, 8, h - 7);
+  }
   if (o.theta != null) {
     const x = X(o.theta);
     ctx.strokeStyle = rgba(P['sc-z'], .45); ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
@@ -787,6 +899,13 @@ function drawChart(cv, o) {
       ctx.beginPath(); ctx.arc(mx, Y(y), 4.5, 0, TAU); ctx.fillStyle = P.panel; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = c.color; ctx.stroke();
     }
   }
+  for (const pt of o.pts || []) {
+    if (pt.x > o.xmax) continue;
+    const px = X(pt.x), py = Y(pt.y), left = px > m.l + pw - 90;
+    ctx.beginPath(); ctx.arc(px, py, 4, 0, TAU); ctx.fillStyle = pt.color; ctx.fill();
+    ctx.font = `600 11px ${MONO}`; ctx.textAlign = left ? 'right' : 'left'; ctx.textBaseline = pt.below ? 'top' : 'bottom';
+    ctx.fillText(pt.label, px + (left ? -7 : 7), py + (pt.below ? 6 : -6));
+  }
   ctx.restore();
   if (o.marker) {
     ctx.font = `600 11px ${MONO}`; ctx.fillStyle = P.ink; ctx.textBaseline = 'top';
@@ -849,10 +968,29 @@ themeBtn.addEventListener('click', () => {
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme);
 syncTheme();
 setPlaying(anim.playing);
-function scrub(cv) {
-  const go = e => { const r = cv.getBoundingClientRect(); anim.theta = Math.max(0, Math.min(0.9999, (e.clientX - r.left) / r.width)) * 4 * PI; if (anim.playing) setPlaying(false); dirty(); };
-  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); go(e); });
-  cv.addEventListener('pointermove', e => { if (e.buttons) go(e); });
+// cur (optional): { on, a:[a1, a2] } measurement cursors; dragging near one moves it and snaps to rising zero crossings
+function scrub(cv, cur) {
+  let drag = -1;
+  const frac = e => { const r = cv.getBoundingClientRect(); return [Math.max(0, Math.min(0.9999, (e.clientX - r.left) / r.width)), r.width]; };
+  const go = e => { anim.theta = frac(e)[0] * 4 * PI; if (anim.playing) setPlaying(false); dirty(); };
+  const move = e => {
+    const [fr, w] = frac(e); let a = fr * 4 * PI, best = 9;
+    for (const ph of cv._phases || []) for (let k = -1; k <= 3; k++) {
+      const z = TAU * k - ph, dpx = Math.abs(z / (4 * PI) - fr) * w;
+      if (z >= 0 && z <= 4 * PI && dpx < best) { best = dpx; a = z; }
+    }
+    cur.a[drag] = a; dirty();
+  };
+  cv.addEventListener('pointerdown', e => {
+    cv.setPointerCapture(e.pointerId); drag = -1;
+    if (cur && cur.on) {
+      const [fr, w] = frac(e), d = cur.a.map(a => Math.abs(a / (4 * PI) - fr) * w), k = d[0] <= d[1] ? 0 : 1;
+      if (d[k] < 22) { drag = k; move(e); return; }
+    }
+    go(e);
+  });
+  cv.addEventListener('pointermove', e => { if (!e.buttons) return; drag >= 0 ? move(e) : go(e); });
+  cv.addEventListener('pointerup', () => { drag = -1; });
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dirty);
 new MutationObserver(dirty).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
@@ -968,11 +1106,51 @@ function elementLab(kind) {
 }
 elementLab('r'); elementLab('l'); elementLab('c');
 
-/* ---------- RLC series ---------- */
-(() => {
-  const root = $('#lab-rlc');
-  const st = { V: 230, R: 30, L: 0.1, C: 47e-6, f: 50 };
-  const view = { chain: true, parts: true, pow: false, zmode: 'Z' };
+/* ---------- RLC series / parallel ---------- */
+// generic right triangle: horizontal leg a, vertical legs up (+) and dn (−), hypotenuse hyp
+// o: { a, up, dn, phi, hyp, na, nx, nh, u:[unitA, unitX, unitH], lu:[main, sub], ld:[main, sub] }
+function drawTri(cv, o) {
+  const { ctx, w, h } = prep(cv), P = PAL;
+  const A = o.a, XL = o.up, X = o.up - o.dn, phi = o.phi;
+  const top = Math.max(XL, 0), bot = Math.min(X, 0);
+  const m = 44;
+  const k = Math.min((w - 200) / A, (h - 2 * m) / Math.max(top - bot, 1e-9));
+  const ox = Math.max(90, (w - A * k - 100) / 2 + 40), oy = m + (h - 2 * m - (top - bot) * k) / 2 + top * k;
+  const SX = x => ox + x * k, SY = y => oy - y * k;
+  // ghost up / down legs
+  const gx = SX(A) + 14;
+  ctx.globalAlpha = .55;
+  arrow(ctx, gx, SY(0), gx, SY(XL), P.l, 1.4, 7, [3, 3]);
+  if (o.dn > 0) arrow(ctx, gx + 6, SY(XL), gx + 6, SY(X), P.c, 1.4, 7, [3, 3]);
+  ctx.globalAlpha = 1;
+  const ar = Math.min(32, A * k * 0.4);
+  if (Math.abs(phi) > 0.01) {
+    ctx.beginPath(); ctx.moveTo(SX(0), SY(0)); ctx.arc(SX(0), SY(0), ar, 0, -phi, phi > 0); ctx.closePath(); ctx.fillStyle = rgba(P.v, .22); ctx.fill();
+  }
+  arrow(ctx, SX(0), SY(0), SX(A), SY(0), P.r, 2.6, 10);
+  if (Math.abs(X) * k > 2) arrow(ctx, SX(A), SY(0), SX(A), SY(X), X > 0 ? P.l : P.c, 2.6, 10);
+  arrow(ctx, SX(0), SY(0), SX(A), SY(X), P.ink, 2.8, 11);
+  ctx.font = `500 11.5px ${MONO}`; ctx.fillStyle = P.r; ctx.textAlign = 'center'; ctx.textBaseline = X >= 0 ? 'top' : 'bottom';
+  ctx.fillText(`${o.na} = ${eng(A, o.u[0])}`, SX(A / 2), SY(0) + (X >= 0 ? 6 : -6));
+  ctx.fillStyle = X >= 0 ? P.l : P.c; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  if (Math.abs(X) > 1e-9) ctx.fillText(`${o.nx} = ${eng(X, o.u[1])}`, gx + 18, SY(X / 2));
+  // hypotenuse label perpendicular to it, away from the vertical leg
+  const hx = SX(A / 2), hy = SY(X / 2), L = Math.hypot(A * k, X * k) || 1;
+  const side = X >= 0 ? 1 : -1, nx = side * (-X * k) / L, ny = side * (-A * k) / L;
+  ctx.fillStyle = P.ink; ctx.textAlign = nx < 0 ? 'right' : 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(`${o.nh} = ${eng(o.hyp, o.u[2])}`, hx + nx * 16, hy + ny * 16);
+  ctx.fillStyle = P.v; ctx.textAlign = 'right';
+  if (Math.abs(phi) > 0.01) ctx.fillText(`φ = ${deg(phi)}`, SX(0) - 8, SY(0));
+  subLabel(ctx, o.lu[0], o.lu[1], gx - 12, SY(XL) + 4, P.l, 13);
+  if (o.dn > 0) subLabel(ctx, o.ld[0], o.ld[1], gx + 22, SY(X) - 6 * Math.sign(o.dn - XL || 1), P.c, 13);
+}
+
+function rlcLab(id, par) {
+  const root = $('#' + id);
+  const st = par ? { V: 230, R: 100, L: 0.2, C: 22e-6, f: 50 } : { V: 230, R: 30, L: 0.1, C: 47e-6, f: 50 };
+  const opt = { noC: false };
+  const view = { chain: true, parts: true, pow: false, zmode: par ? 'I' : 'Z', tmode: par ? 'S' : 'Z' };
+  const cur = { on: false, a: [0.4 * PI, 1.2 * PI] };
   const ctl = $('.controls', root), out = $('.readouts', root), badge = $('[data-out=badge]', root);
   const on = () => { update(); dirty(); };
   const S = {
@@ -982,134 +1160,173 @@ elementLab('r'); elementLab('l'); elementLab('c');
     C: slider(ctl, { obj: st, key: 'C', sym: 'C', label: 'Capacitat', unit: 'µF', scale: 1e-6, min: 1e-7, max: 1e-3, log: true }, on),
     f: slider(ctl, { obj: st, key: 'f', sym: 'f', label: 'Freqüència', unit: 'Hz', min: 1, max: 5000, log: true }, on),
   };
-  const Zf = f => Math.hypot(st.R, TAU * f * st.L - 1 / (TAU * f * st.C));
+  const cWrap = $$('.ctl', ctl)[3];
+  const Zf = f => {
+    const XL = TAU * f * st.L;
+    if (par) return 1 / Math.hypot(1 / st.R, 1 / XL - TAU * f * st.C);
+    return Math.hypot(st.R, XL - (opt.noC ? 0 : 1 / (TAU * f * st.C)));
+  };
+  const warnIf = (b, t) => `<span${b ? ' class="warn"' : ''}>${t}</span>`;
+  const note = t => `<div class="ro" style="grid-column:1/-1;border-bottom:0"><span class="ro-k" style="color:var(--v)">${t}</span></div>`;
   let c = {};
   function update() {
     const { V, R, L, C, f } = st;
-    const XL = TAU * f * L, XC = 1 / (TAU * f * C), X = XL - XC, Z = Math.hypot(R, X), I = V / Z, phi = Math.atan2(X, R);
-    c = { XL, XC, X, Z, I, phi, VR: R * I, VL: XL * I, VC: XC * I, f0: 1 / (TAU * Math.sqrt(L * C)) };
-    const pd = Math.abs(phi * DEG);
-    if (pd < 1) { badge.className = 'badge res'; badge.textContent = 'XL ≈ XC · comportament resistiu'; }
-    else if (phi > 0) { badge.className = 'badge ind'; badge.textContent = `Inductiu · I endarrerida ${n(pd)}°`; }
+    const XL = TAU * f * L, XC = opt.noC ? 0 : 1 / (TAU * f * C);
+    const f0 = opt.noC ? null : 1 / (TAU * Math.sqrt(L * C));
+    if (par) {
+      const IR = V / R, IL = V / XL, IC = V / XC, I = Math.hypot(IR, IL - IC);
+      c = { XL, XC, IR, IL, IC, I, Z: V / I, phi: Math.atan2(IL - IC, IR), P: V * IR, QL: V * IL, QC: V * IC, f0 };
+    } else {
+      const X = XL - XC, Z = Math.hypot(R, X), I = V / Z;
+      c = { XL, XC, X, Z, I, phi: Math.atan2(X, R), VR: R * I, VL: XL * I, VC: XC * I, P: R * I * I, QL: XL * I * I, QC: XC * I * I, f0 };
+    }
+    c.Q = c.QL - c.QC; c.S = V * c.I; c.pf = Math.cos(c.phi);
+    const pd = Math.abs(c.phi * DEG);
+    if (pd < 1) { badge.className = 'badge res'; badge.textContent = opt.noC ? 'Gairebé resistiu' : `Ressonància · ${par ? 'IL ≈ IC' : 'XL ≈ XC'} · φ ≈ 0°`; }
+    else if (c.phi > 0) { badge.className = 'badge ind'; badge.textContent = `Inductiu · I endarrerida ${n(pd)}°`; }
     else { badge.className = 'badge cap'; badge.textContent = `Capacitiu · I avançada ${n(pd)}°`; }
-    const arith = c.VR + c.VL + c.VC;
-    const over = Math.max(c.VL, c.VC) > V;
-    out.innerHTML =
-      roRow('Reactància inductiva', `<i>X</i><sub>L</sub> = 2π·${n(f)}·${n(L)}`, eng(XL, 'Ω'))
-      + roRow('Reactància capacitiva', `<i>X</i><sub>C</sub> = 1 / (2π·${n(f)}·${sv(C)})`, eng(XC, 'Ω'))
-      + roRow('Mòdul de la impedància', `|<i>Z</i>| = √(${n(R)}<sup>2</sup> + (${n(XL)} − ${n(XC)})<sup>2</sup>)`, eng(Z, 'Ω'))
-      + roRow('Intensitat (comuna)', `<i>I</i> = <i>V</i>/|<i>Z</i>| = ${n(V)} / ${n(Z)}`, eng(I, 'A'))
-      + roRow('Desfasament', `φ = tan<sup>−1</sup>(${n(X)} / ${n(R)})`, deg(phi))
-      + roRow('Tensió a R', `<i>V</i><sub>R</sub> = <i>R</i>·<i>I</i>`, eng(c.VR, 'V'))
-      + roRow('Tensió a L', `<i>V</i><sub>L</sub> = <i>X</i><sub>L</sub>·<i>I</i>`, (c.VL > V ? '<span class="warn">' : '<span>') + eng(c.VL, 'V') + '</span>')
-      + roRow('Tensió a C', `<i>V</i><sub>C</sub> = <i>X</i><sub>C</sub>·<i>I</i>`, (c.VC > V ? '<span class="warn">' : '<span>') + eng(c.VC, 'V') + '</span>')
-      + roRow('Suma aritmètica (incorrecta)', `<i>V</i><sub>R</sub> + <i>V</i><sub>L</sub> + <i>V</i><sub>C</sub>`, `<s>${eng(arith, 'V')}</s>`)
-      + roRow('Suma fasorial (correcta)', `√(<i>V</i><sub>R</sub><sup>2</sup> + (<i>V</i><sub>L</sub> − <i>V</i><sub>C</sub>)<sup>2</sup>)`, eng(Math.hypot(c.VR, c.VL - c.VC), 'V'))
-      + roRow('Potència activa', `<i>P</i> = <i>R</i>·<i>I</i><sup>2</sup>`, eng(R * I * I, 'W'))
-      + roRow('Potència reactiva', `<i>Q</i> = (<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)·<i>I</i><sup>2</sup>`, eng(X * I * I, 'VAr'))
-      + roRow('Freqüència on X<sub>L</sub> = X<sub>C</sub>', `<i>f</i><sub>0</sub> = 1 / (2π√(<i>LC</i>))`, eng(c.f0, 'Hz'))
-      + (over ? `<div class="ro" style="grid-column:1/-1;border-bottom:0"><span class="ro-k" style="color:var(--v)">Fixa-t’hi: la tensió en ${c.VL > V && c.VC > V ? 'L i C' : c.VL > V ? 'la bobina' : 'el condensador'} és més gran que la de la font. Les tensions de L i C es compensen parcialment perquè estan en oposició (180°).</span></div>` : '');
+
+    let rows = roRow('Reactància inductiva', `<i>X</i><sub>L</sub> = 2π·${n(f)}·${n(L)}`, eng(XL, 'Ω'));
+    if (!opt.noC) rows += roRow('Reactància capacitiva', `<i>X</i><sub>C</sub> = 1 / (2π·${n(f)}·${sv(C)})`, eng(XC, 'Ω'));
+    let warn = '';
+    if (par) {
+      rows += roRow('Corrent per R', `<i>I</i><sub>R</sub> = <i>V</i>/<i>R</i> = ${n(V)} / ${n(R)}`, eng(c.IR, 'A'))
+        + roRow('Corrent per L', `<i>I</i><sub>L</sub> = <i>V</i>/<i>X</i><sub>L</sub> = ${n(V)} / ${n(XL)}`, warnIf(c.IL > c.I, eng(c.IL, 'A')))
+        + roRow('Corrent per C', `<i>I</i><sub>C</sub> = <i>V</i>/<i>X</i><sub>C</sub> = ${n(V)} / ${n(XC)}`, warnIf(c.IC > c.I, eng(c.IC, 'A')))
+        + roRow('Suma aritmètica (incorrecta)', `<i>I</i><sub>R</sub> + <i>I</i><sub>L</sub> + <i>I</i><sub>C</sub>`, `<s>${eng(c.IR + c.IL + c.IC, 'A')}</s>`)
+        + roRow('Corrent total (suma fasorial)', `<i>I</i> = √(${n(c.IR)}<sup>2</sup> + (${n(c.IL)} − ${n(c.IC)})<sup>2</sup>)`, eng(c.I, 'A'))
+        + roRow('Desfasament', `φ = tan<sup>−1</sup>((${n(c.IL)} − ${n(c.IC)}) / ${n(c.IR)})`, deg(c.phi))
+        + roRow('Impedància equivalent', `|<i>Z</i>| = <i>V</i>/<i>I</i> = ${n(V)} / ${n(c.I)}`, eng(c.Z, 'Ω'))
+        + roRow('Potència activa', `<i>P</i> = <i>V</i>·<i>I</i><sub>R</sub>`, eng(c.P, 'W'))
+        + roRow('Potència reactiva', `<i>Q</i> = <i>V</i>·(<i>I</i><sub>L</sub> − <i>I</i><sub>C</sub>)`, eng(c.Q, 'VAr'));
+      if (Math.max(c.IL, c.IC) > c.I) warn = note(`Fixa-t’hi: el corrent ${c.IL > c.I && c.IC > c.I ? 'per L i per C' : c.IL > c.I ? 'per la bobina' : 'pel condensador'} és més gran que el corrent total. I<sub>L</sub> i I<sub>C</sub> es compensen parcialment perquè estan en oposició (180°): part de l’energia reactiva circula entre L i C sense passar per la font.`);
+    } else {
+      const zf = opt.noC ? `√(${n(R)}<sup>2</sup> + ${n(XL)}<sup>2</sup>)` : `√(${n(R)}<sup>2</sup> + (${n(XL)} − ${n(XC)})<sup>2</sup>)`;
+      rows += roRow('Mòdul de la impedància', `|<i>Z</i>| = ${zf}`, eng(c.Z, 'Ω'))
+        + roRow('Intensitat (comuna)', `<i>I</i> = <i>V</i>/|<i>Z</i>| = ${n(V)} / ${n(c.Z)}`, eng(c.I, 'A'))
+        + roRow('Desfasament', `φ = tan<sup>−1</sup>(${n(c.X)} / ${n(R)})`, deg(c.phi))
+        + roRow('Tensió a R', `<i>V</i><sub>R</sub> = <i>R</i>·<i>I</i>`, eng(c.VR, 'V'))
+        + roRow('Tensió a L', `<i>V</i><sub>L</sub> = <i>X</i><sub>L</sub>·<i>I</i>`, warnIf(c.VL > V, eng(c.VL, 'V')));
+      if (!opt.noC) rows += roRow('Tensió a C', `<i>V</i><sub>C</sub> = <i>X</i><sub>C</sub>·<i>I</i>`, warnIf(c.VC > V, eng(c.VC, 'V')));
+      rows += opt.noC
+        ? roRow('Suma aritmètica (incorrecta)', `<i>V</i><sub>R</sub> + <i>V</i><sub>L</sub>`, `<s>${eng(c.VR + c.VL, 'V')}</s>`)
+          + roRow('Suma fasorial (correcta)', `√(<i>V</i><sub>R</sub><sup>2</sup> + <i>V</i><sub>L</sub><sup>2</sup>)`, eng(Math.hypot(c.VR, c.VL), 'V'))
+        : roRow('Suma aritmètica (incorrecta)', `<i>V</i><sub>R</sub> + <i>V</i><sub>L</sub> + <i>V</i><sub>C</sub>`, `<s>${eng(c.VR + c.VL + c.VC, 'V')}</s>`)
+          + roRow('Suma fasorial (correcta)', `√(<i>V</i><sub>R</sub><sup>2</sup> + (<i>V</i><sub>L</sub> − <i>V</i><sub>C</sub>)<sup>2</sup>)`, eng(Math.hypot(c.VR, c.VL - c.VC), 'V'));
+      rows += roRow('Potència activa', `<i>P</i> = <i>R</i>·<i>I</i><sup>2</sup>`, eng(c.P, 'W'))
+        + roRow('Potència reactiva', opt.noC ? `<i>Q</i> = <i>X</i><sub>L</sub>·<i>I</i><sup>2</sup>` : `<i>Q</i> = (<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)·<i>I</i><sup>2</sup>`, eng(c.Q, 'VAr'));
+      if (Math.max(c.VL, c.VC) > V) warn = note(`Fixa-t’hi: la tensió en ${c.VL > V && c.VC > V ? 'L i C' : c.VL > V ? 'la bobina' : 'el condensador'} és més gran que la de la font. Les tensions de L i C es compensen parcialment perquè estan en oposició (180°).`);
+    }
+    const kind = pd < 1 ? '' : c.phi > 0 ? ' (inductiu)' : ' (capacitiu)';
+    rows += roRow('Potència aparent', `<i>S</i> = <i>V</i>·<i>I</i> = ${n(V)} · ${n(c.I)}`, eng(c.S, 'VA'))
+      + roRow('Factor de potència', `cos φ = <i>P</i>/<i>S</i> = ${n(c.P)} / ${n(c.S)}`, n(c.pf, 3) + kind);
+    if (!opt.noC) rows += roRow('Freqüència de ressonància', `<i>f</i><sub>0</sub> = 1 / (2π√(<i>LC</i>))`, eng(f0, 'Hz'));
+    out.innerHTML = rows + warn;
   }
+
+  const noC = $('[data-opt=noC]', root);
+  function setNoC(v) { opt.noC = v; if (noC) noC.checked = v; cWrap.classList.toggle('off', v); }
+  if (noC) noC.addEventListener('change', () => { setNoC(noC.checked); on(); });
   update();
 
-  const PRESETS = {
-    ind: { V: 230, R: 20, L: 0.3, C: 100e-6, f: 50 },
-    cap: { V: 230, R: 30, L: 0.1, C: 47e-6, f: 50 },
-  };
+  const PRESETS = par
+    ? { ind: { V: 230, R: 100, L: 0.2, C: 22e-6, f: 50 }, cap: { V: 230, R: 100, L: 0.5, C: 47e-6, f: 50 } }
+    : { ind: { V: 230, R: 20, L: 0.3, C: 100e-6, f: 50 }, cap: { V: 230, R: 30, L: 0.1, C: 47e-6, f: 50 }, coil: { V: 230, R: 15, L: 0.1, f: 50 } };
   for (const b of $$('[data-preset]', root)) b.addEventListener('click', () => {
     const p = b.dataset.preset;
-    if (p === 'res') S.f.set(+c.f0.toPrecision(4));
+    setNoC(p === 'coil');
+    if (p === 'res') { update(); S.f.set(+Math.min(5000, Math.max(1, c.f0)).toPrecision(4)); }
     else for (const k in PRESETS[p]) S[k].set(PRESETS[p][k]);
-    update(); dirty();
+    on();
   });
-  $('#ck-chain').addEventListener('change', e => { view.chain = e.target.checked; dirty(); });
-  $('#ck-parts').addEventListener('change', e => { view.parts = e.target.checked; dirty(); });
-  $('#ck-pow').addEventListener('change', e => { view.pow = e.target.checked; dirty(); });
+  for (const ck of $$('[data-view]', root)) ck.addEventListener('change', () => {
+    if (ck.dataset.view === 'cur') { cur.on = ck.checked; $('[data-out=cur]', root).hidden = !ck.checked; }
+    else view[ck.dataset.view] = ck.checked;
+    dirty();
+  });
   for (const b of $$('[data-zmode]', root)) b.addEventListener('click', () => {
     view.zmode = b.dataset.zmode;
     for (const x of $$('[data-zmode]', root)) x.setAttribute('aria-pressed', String(x === b));
     dirty();
   });
+  for (const b of $$('[data-tmode]', root)) b.addEventListener('click', () => {
+    view.tmode = b.dataset.tmode;
+    for (const x of $$('[data-tmode]', root)) x.setAttribute('aria-pressed', String(x === b));
+    $('[data-out=tri-cap]', root).textContent = view.tmode === 'Z' ? 'Triangle d’impedàncies' : 'Triangle de potències';
+    dirty();
+  });
 
-  const ph = $('#cv-rlc-ph'), sc = $('#cv-rlc-sc'), tri = $('#cv-rlc-tri'), fch = $('#cv-rlc-f');
-  scrub(sc);
+  const cv = k => $(`[data-cv=${k}]`, root);
+  const ph = cv('ph'), sc = cv('sc'), tri = cv('tri'), fch = cv('f');
+  scrub(sc, cur);
   register(ph, () => {
     const P = PAL, vecs = [];
+    // series: voltages with I as reference; parallel: currents with V as reference (I_L down, I_C up)
+    const [a, b, d] = par ? [c.IR, c.IL, c.IC] : [c.VR, c.VL, c.VC];
+    const nm = par ? 'I' : 'V', su = par ? -1 : 1;
+    vecs.push({ mag: a, ang: 0, color: P['sc-r'], label: nm, sub: 'R', lw: 2.4 });
     if (view.chain) {
-      vecs.push({ mag: c.VR, ang: 0, color: P['sc-r'], label: 'V', sub: 'R', lw: 2.4 });
-      vecs.push({ sx: c.VR, sy: 0, mag: c.VL, ang: PI / 2, color: P['sc-l'], label: 'V', sub: 'L', lw: 2.4, labelSide: -1 });
-      vecs.push({ sx: c.VR, sy: c.VL, mag: c.VC, ang: -PI / 2, color: P['sc-c'], label: 'V', sub: 'C', lw: 2.4, labelSide: 1 });
+      vecs.push({ sx: a, sy: 0, mag: b, ang: su * PI / 2, color: P['sc-l'], label: nm, sub: 'L', lw: 2.4, labelSide: -su });
+      if (!opt.noC) vecs.push({ sx: a, sy: su * b, mag: d, ang: -su * PI / 2, color: P['sc-c'], label: nm, sub: 'C', lw: 2.4, labelSide: su });
     } else {
-      vecs.push({ mag: c.VR, ang: 0, color: P['sc-r'], label: 'V', sub: 'R', lw: 2.4 });
-      vecs.push({ mag: c.VL, ang: PI / 2, color: P['sc-l'], label: 'V', sub: 'L', lw: 2.4 });
-      vecs.push({ mag: c.VC, ang: -PI / 2, color: P['sc-c'], label: 'V', sub: 'C', lw: 2.4 });
+      vecs.push({ mag: b, ang: su * PI / 2, color: P['sc-l'], label: nm, sub: 'L', lw: 2.4 });
+      if (!opt.noC) vecs.push({ mag: d, ang: -su * PI / 2, color: P['sc-c'], label: nm, sub: 'C', lw: 2.4 });
     }
-    vecs.push({ mag: st.V, ang: c.phi, color: P['sc-v'], label: 'V', lw: 3.2, proj: true });
+    vecs.push(par ? { mag: c.I, ang: -c.phi, color: P['sc-i'], label: 'I', lw: 3.2, proj: true }
+                  : { mag: st.V, ang: c.phi, color: P['sc-v'], label: 'V', lw: 3.2, proj: true });
     let bound = 0; for (const v of vecs) { const sx = v.sx || 0, sy = v.sy || 0; bound = Math.max(bound, Math.hypot(sx, sy), Math.hypot(sx + v.mag * Math.cos(v.ang), sy + v.mag * Math.sin(v.ang))); }
-    vecs.unshift({ mag: bound * 0.32, ang: 0, color: P['sc-i'], label: 'I', lw: 2, dash: [4, 3], proj: true, labelSide: 1 });
-    drawPhasor(ph, { theta: anim.theta, rotate: true, vecs, arc: { a1: 0, a2: c.phi, color: P['sc-z'] } });
+    vecs.unshift(par ? { mag: bound * 0.32, ang: 0, color: P['sc-v'], label: 'V', lw: 2, dash: [4, 3], proj: true, labelSide: 1 }
+                     : { mag: bound * 0.32, ang: 0, color: P['sc-i'], label: 'I', lw: 2, dash: [4, 3], proj: true, labelSide: 1 });
+    drawPhasor(ph, { theta: anim.theta, rotate: true, vecs, arc: par ? { a1: -c.phi, a2: 0, color: P['sc-z'] } : { a1: 0, a2: c.phi, color: P['sc-z'] } });
   });
   register(sc, () => {
-    const P = PAL, vt = [{ peak: SQ2 * st.V, phase: c.phi, color: P['sc-v'], width: 2.6 }];
-    if (view.parts) vt.push({ peak: SQ2 * c.VR, phase: 0, color: P['sc-r'], width: 1.5 }, { peak: SQ2 * c.VL, phase: PI / 2, color: P['sc-l'], width: 1.5 }, { peak: SQ2 * c.VC, phase: -PI / 2, color: P['sc-c'], width: 1.5 });
-    drawScope(sc, { f: st.f, theta: anim.theta, power: view.pow ? { pv: c.phi, pi: 0 } : null,
-      ch: [{ name: 'CH1 v', unit: 'V', color: P['sc-v'], traces: vt }, { name: 'CH2 i', unit: 'A', color: P['sc-i'], traces: [{ peak: SQ2 * c.I, phase: 0, color: P['sc-i'], width: 2.2 }] }] });
+    const P = PAL;
+    let ch1, ch2, pow;
+    if (par) {
+      const it = [{ peak: SQ2 * c.I, phase: -c.phi, color: P['sc-i'], width: 2.6 }];
+      if (view.parts) it.push({ peak: SQ2 * c.IR, phase: 0, color: P['sc-r'], width: 1.5 }, { peak: SQ2 * c.IL, phase: -PI / 2, color: P['sc-l'], width: 1.5 }, { peak: SQ2 * c.IC, phase: PI / 2, color: P['sc-c'], width: 1.5 });
+      ch1 = { name: 'CH1 v', unit: 'V', color: P['sc-v'], traces: [{ peak: SQ2 * st.V, phase: 0, color: P['sc-v'], width: 2.2 }] };
+      ch2 = { name: 'CH2 i', unit: 'A', color: P['sc-i'], traces: it };
+      pow = { pv: 0, pi: -c.phi };
+    } else {
+      const vt = [{ peak: SQ2 * st.V, phase: c.phi, color: P['sc-v'], width: 2.6 }];
+      if (view.parts) {
+        vt.push({ peak: SQ2 * c.VR, phase: 0, color: P['sc-r'], width: 1.5 }, { peak: SQ2 * c.VL, phase: PI / 2, color: P['sc-l'], width: 1.5 });
+        if (!opt.noC) vt.push({ peak: SQ2 * c.VC, phase: -PI / 2, color: P['sc-c'], width: 1.5 });
+      }
+      ch1 = { name: 'CH1 v', unit: 'V', color: P['sc-v'], traces: vt };
+      ch2 = { name: 'CH2 i', unit: 'A', color: P['sc-i'], traces: [{ peak: SQ2 * c.I, phase: 0, color: P['sc-i'], width: 2.2 }] };
+      pow = { pv: c.phi, pi: 0 };
+    }
+    drawScope(sc, { f: st.f, theta: anim.theta, power: view.pow ? pow : null, cursors: cur.on ? cur.a : null, ch: [ch1, ch2] });
   });
   register(tri, () => {
-    const { ctx, w, h } = prep(tri), P = PAL;
-    const R = st.R, X = c.X, XL = c.XL;
-    const top = Math.max(XL, 0), bot = Math.min(X, 0);
-    const m = 44;
-    const k = Math.min((w - 200) / R, (h - 2 * m) / Math.max(top - bot, 1e-9));
-    const ox = Math.max(90, (w - R * k - 100) / 2 + 40), oy = m + (h - 2 * m - (top - bot) * k) / 2 + top * k;
-    const SX = x => ox + x * k, SY = y => oy - y * k;
-    // ghost XL / XC
-    const gx = SX(R) + 14;
-    ctx.globalAlpha = .55;
-    arrow(ctx, gx, SY(0), gx, SY(XL), P.l, 1.4, 7, [3, 3]);
-    arrow(ctx, gx + 6, SY(XL), gx + 6, SY(XL - c.XC), P.c, 1.4, 7, [3, 3]);
-    ctx.globalAlpha = 1;
-    ctx.font = `italic 12px ${MATH}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-    // arc
-    const ar = Math.min(32, R * k * 0.4);
-    if (Math.abs(c.phi) > 0.01) {
-      ctx.beginPath(); ctx.moveTo(SX(0), SY(0)); ctx.arc(SX(0), SY(0), ar, 0, -c.phi, c.phi > 0); ctx.closePath(); ctx.fillStyle = rgba(P.v, .22); ctx.fill();
-    }
-    arrow(ctx, SX(0), SY(0), SX(R), SY(0), P.r, 2.6, 10);
-    if (Math.abs(X) * k > 2) arrow(ctx, SX(R), SY(0), SX(R), SY(X), X > 0 ? P.l : P.c, 2.6, 10);
-    arrow(ctx, SX(0), SY(0), SX(R), SY(X), P.ink, 2.8, 11);
-    ctx.font = `500 11.5px ${MONO}`; ctx.fillStyle = P.r; ctx.textAlign = 'center'; ctx.textBaseline = X >= 0 ? 'top' : 'bottom';
-    ctx.fillText(`R = ${eng(R, 'Ω')}`, SX(R / 2), SY(0) + (X >= 0 ? 6 : -6));
-    ctx.fillStyle = X >= 0 ? P.l : P.c; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    if (Math.abs(X) > 1e-9) ctx.fillText(`X = ${n(X)} Ω`, gx + 18, SY(X / 2));
-    // Z label perpendicular to hypotenuse
-    const hx = SX(R / 2), hy = SY(X / 2), L = Math.hypot(R * k, X * k) || 1;
-    const side = X >= 0 ? 1 : -1, nx = side * (-X * k) / L, ny = side * (-R * k) / L; // normal away from the X leg
-    ctx.fillStyle = P.ink; ctx.textAlign = nx < 0 ? 'right' : 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(`|Z| = ${eng(c.Z, 'Ω')}`, hx + nx * 16, hy + ny * 16);
-    ctx.fillStyle = P.v; ctx.textAlign = 'left';
-    ctx.textAlign = 'right';
-    if (Math.abs(c.phi) > 0.01) ctx.fillText(`φ = ${deg(c.phi)}`, SX(0) - 8, SY(0));
-    subLabel(ctx, 'X', 'L', gx - 12, SY(XL) + 4, P.l, 13);
-    subLabel(ctx, 'X', 'C', gx + 22, SY(XL - c.XC) - 6 * Math.sign(c.XC - XL || 1), P.c, 13);
-  });
+    if (view.tmode === 'Z') drawTri(tri, { a: st.R, up: c.XL, dn: c.XC, phi: c.phi, hyp: c.Z, na: 'R', nx: 'X', nh: '|Z|', u: ['Ω', 'Ω', 'Ω'], lu: ['X', 'L'], ld: ['X', 'C'] });
+    else drawTri(tri, { a: c.P, up: c.QL, dn: c.QC, phi: c.phi, hyp: c.S, na: 'P', nx: 'Q', nh: 'S', u: ['W', 'VAr', 'VA'], lu: ['Q', 'L'], ld: ['Q', 'C'] });
+  }, true);
   register(fch, () => {
-    const P = PAL;
-    const xmax = niceUp(Math.max(2.5 * c.f0, 1.25 * st.f));
-    const vl = [{ x: c.f0, label: 'f₀', color: P.muted }];
+    const P = PAL, f0 = c.f0;
+    const xmax = f0 ? niceUp(Math.max(2.5 * f0, 1.25 * st.f)) : niceUp(Math.max(2.5 * st.f, 100));
+    const vl = f0 ? [{ x: f0, label: 'f₀', color: P.muted }] : [];
+    const Rline = { fn: () => st.R, color: P.r, lw: 1.3, dash: [5, 4], noDot: true };
     if (view.zmode === 'Z') {
-      const ymax = niceUp(Math.max(4 * st.R, 1.3 * c.Z));
-      drawChart(fch, { xmax, ymax, xunit: 'f (Hz)', yunit: 'Ω', vlines: vl,
-        curves: [{ fn: () => st.R, color: P.r, lw: 1.3, dash: [5, 4], noDot: true }, { fn: f => TAU * f * st.L, color: P.l, lw: 1.3, noDot: true }, { fn: f => 1 / (TAU * f * st.C), color: P.c, lw: 1.3, noDot: true }, { fn: Zf, color: P.ink, lw: 2.6 }],
-        marker: { x: st.f, label: `|Z| = ${eng(c.Z, 'Ω')}` } });
+      const ymax = par ? niceUp(1.25 * st.R) : niceUp(Math.max(4 * st.R, 1.3 * c.Z));
+      const curves = par ? [Rline, { fn: Zf, color: P.ink, lw: 2.6 }]
+        : [Rline, { fn: f => TAU * f * st.L, color: P.l, lw: 1.3, noDot: true }, ...(f0 ? [{ fn: f => 1 / (TAU * f * st.C), color: P.c, lw: 1.3, noDot: true }] : []), { fn: Zf, color: P.ink, lw: 2.6 }];
+      const pts = f0 ? [{ x: f0, y: st.R, color: P.ink, label: par ? '|Z| màx = R' : '|Z| mín = R', below: !par }] : [];
+      drawChart(fch, { xmax, ymax, xunit: 'f (Hz)', yunit: 'Ω', vlines: vl, curves, pts, marker: { x: st.f, label: `|Z| = ${eng(c.Z, 'Ω')}` } });
     } else {
-      const ymax = niceUp(1.15 * st.V / st.R);
-      drawChart(fch, { xmax, ymax, xunit: 'f (Hz)', yunit: 'A', vlines: vl,
+      const I0 = st.V / st.R;
+      const ymax = par ? niceUp(Math.max(3 * I0, 1.3 * c.I)) : niceUp(1.15 * I0);
+      const pts = f0 ? [{ x: f0, y: I0, color: P.i, label: par ? 'I mín = V/R' : 'I màx = V/R', below: par }] : [];
+      drawChart(fch, { xmax, ymax, xunit: 'f (Hz)', yunit: 'A', vlines: vl, pts,
         curves: [{ fn: f => st.V / Zf(f), color: P.i, lw: 2.6 }],
         marker: { x: st.f, label: `I = ${eng(c.I, 'A')}` } });
     }
   }, true);
-})();
+}
+rlcLab('lab-rlc', false);
+rlcLab('lab-par', true);
 
 /* ---------- pages ---------- */
 const pages = $$('.page'), navLinks = $$('.nav a');
@@ -1164,6 +1381,15 @@ const CONCEPTS = [
   ['RLC sèrie', 'Per què no podem sumar V<sub>R</sub> + V<sub>L</sub> + V<sub>C</sub> aritmèticament?', ['Perquè no estan en fase', 'Perquè tenen unitats diferents', 'Perquè V<sub>C</sub> sempre és negativa', 'Sí que es poden sumar'], 'Són fasors amb angles diferents (0°, +90°, −90°): cal fer la suma fasorial.'],
   ['RLC sèrie', 'Si en un circuit RLC sèrie X<sub>L</sub> &gt; X<sub>C</sub>, el comportament global és…', ['inductiu', 'capacitiu', 'resistiu pur', 'impossible de saber'], 'X = X<sub>L</sub> − X<sub>C</sub> &gt; 0: φ positiu i la intensitat queda endarrerida.'],
   ['Impedància', 'Al triangle d’impedàncies, com es dibuixa el vector X<sub>C</sub>?', ['Vertical cap avall', 'Vertical cap amunt', 'Horitzontal cap a la dreta', 'Inclinat 45°'], 'R és horitzontal, X<sub>L</sub> vertical amunt i X<sub>C</sub> vertical avall.'],
+  ['Ressonància', 'En un circuit RLC sèrie a la freqüència de ressonància…', ['X<sub>L</sub> = X<sub>C</sub>, |Z| = R i la intensitat és màxima', 'X<sub>L</sub> = X<sub>C</sub> i la intensitat és nul·la', 'la impedància és màxima', 'el desfasament és de 90°'], 'A f<sub>0</sub> les reactàncies s’anul·len: |Z| = R és mínima, la intensitat és màxima i φ = 0°.'],
+  ['Ressonància', 'Com es calcula la freqüència de ressonància d’un circuit LC?', ['f<sub>0</sub> = 1 / (2π√(LC))', 'f<sub>0</sub> = 2π√(LC)', 'f<sub>0</sub> = 1 / (2πRC)', 'f<sub>0</sub> = R / (2πL)'], 'S’obté igualant X<sub>L</sub> = X<sub>C</sub>: 2πfL = 1/(2πfC).'],
+  ['Ressonància', 'En ressonància sèrie, la tensió als borns del condensador pot ser…', ['més gran que la tensió de la font', 'sempre zero', 'sempre igual a la de la resistència', 'sempre més petita que la de la font'], 'V<sub>L</sub> i V<sub>C</sub> són iguals i oposades, i s’anul·len entre elles, però cadascuna pot superar molt la tensió de la font (sobretensió).'],
+  ['RLC paral·lel', 'En un circuit RLC paral·lel, quina magnitud és comuna als tres elements?', ['La tensió', 'La intensitat', 'La impedància', 'La potència'], 'Tots els elements estan connectats als mateixos borns: la tensió és comuna i es pren com a referència dels fasors.'],
+  ['RLC paral·lel', 'En un circuit RLC paral·lel, si I<sub>L</sub> &gt; I<sub>C</sub>, el comportament global és…', ['inductiu', 'capacitiu', 'resistiu pur', 'de ressonància'], 'Predomina el corrent de la bobina: el corrent total queda endarrerit respecte de la tensió.'],
+  ['RLC paral·lel', 'En ressonància paral·lel (I<sub>L</sub> = I<sub>C</sub>), el corrent total és…', ['mínim i igual a V/R', 'màxim', 'sempre zero', 'igual a I<sub>L</sub> + I<sub>C</sub>'], 'I<sub>L</sub> i I<sub>C</sub> s’anul·len: només queda I<sub>R</sub> = V/R, i la impedància és màxima (|Z| = R).'],
+  ['Potència', 'Com es calcula el factor de potència?', ['cos φ = P / S', 'cos φ = Q / S', 'cos φ = Q / P', 'cos φ = S / P'], 'Indica quina part de la potència aparent es converteix en potència activa. Va de 0 a 1.'],
+  ['Potència', 'En quina unitat es mesura la potència aparent S?', ['Voltampere (VA)', 'Watt (W)', 'Voltampere reactiu (VAr)', 'Joule (J)'], 'S = V·I es mesura en VA. P en W i Q en VAr.'],
+  ['Bobina real', 'Una bobina real (amb la resistència del fil) connectada en corrent altern té un desfasament…', ['entre 0° i 90°, amb la intensitat endarrerida', 'exactament de 90°', 'de 0°', 'entre 0° i 90°, amb la intensitat avançada'], 'Es comporta com un circuit RL sèrie: la resistència del fil fa que φ sigui menor de 90°.'],
   ['Impedància', 'En quina unitat es mesura la impedància?', ['Ohm (Ω)', 'Henry (H)', 'Farad (F)', 'Hertz (Hz)'], 'Totes les oposicions (R, X<sub>L</sub>, X<sub>C</sub> i Z) es mesuren en ohms.'],
 ];
 const fx = (x, s = 4) => n(x, s);
@@ -1196,6 +1422,30 @@ const CALCS = [
     return { topic: 'RLC sèrie', prompt: `Un circuit RLC sèrie amb <b>R = ${R} Ω</b>, <b>L = ${Lm} mH</b> i <b>C = ${Cu} µF</b> es connecta a <b>230 V, 50 Hz</b>. Calcula X<sub>L</sub>, X<sub>C</sub>, |Z| i la intensitat.`,
       fields: [{ label: '<i>X</i><sub>L</sub>', unit: 'Ω', value: XL }, { label: '<i>X</i><sub>C</sub>', unit: 'Ω', value: XC }, { label: '|<i>Z</i>|', unit: 'Ω', value: Z }, { label: '<i>I</i>', unit: 'A', value: I }],
       sol: [`<i>X</i><sub>L</sub> = 2π · 50 · ${fx(Lm / 1000)} = <b>${fx(XL)} Ω</b>`, `<i>X</i><sub>C</sub> = 1 / (2π · 50 · ${Cu}·10<sup>−6</sup>) = <b>${fx(XC)} Ω</b>`, `|<i>Z</i>| = √(${R}<sup>2</sup> + (${fx(XL)} − ${fx(XC)})<sup>2</sup>) = <b>${fx(Z)} Ω</b>`, `<i>I</i> = 230 / ${fx(Z)} = <b>${fx(I)} A</b>`] }; },
+  () => { const R = rnd([10, 20, 30, 40, 60]); let XL = rnd([20, 30, 40, 60, 80]), XC = rnd([10, 25, 50, 70, 100]); if (XL === XC) XC += 15;
+    const V = 230, X = XL - XC, Z = Math.hypot(R, X), I = V / Z, P = R * I * I, S = V * I, pf = R / Z;
+    return { topic: 'RLC sèrie · potències', prompt: `Un circuit RLC sèrie amb <b>R = ${R} Ω</b>, <b>X<sub>L</sub> = ${XL} Ω</b> i <b>X<sub>C</sub> = ${XC} Ω</b> es connecta a <b>230 V</b>. Calcula la intensitat, la potència activa, la potència aparent i el factor de potència.`,
+      fields: [{ label: '<i>I</i>', unit: 'A', value: I }, { label: '<i>P</i>', unit: 'W', value: P }, { label: '<i>S</i>', unit: 'VA', value: S }, { label: 'cos φ', unit: '', value: pf }],
+      sol: [`|<i>Z</i>| = √(${R}<sup>2</sup> + (${XL} − ${XC})<sup>2</sup>) = ${fx(Z)} Ω`, `<i>I</i> = 230 / ${fx(Z)} = <b>${fx(I)} A</b>`, `<i>P</i> = <i>R</i>·<i>I</i><sup>2</sup> = ${R} · ${fx(I)}<sup>2</sup> = <b>${fx(P)} W</b>`, `<i>S</i> = <i>V</i>·<i>I</i> = 230 · ${fx(I)} = <b>${fx(S)} VA</b>`, `cos φ = <i>P</i>/<i>S</i> = <i>R</i>/|<i>Z</i>| = <b>${fx(pf, 3)}</b> (${X > 0 ? 'inductiu' : 'capacitiu'})`] }; },
+  () => { const Lm = rnd([10, 22, 47, 100, 220]), Cu = rnd([1, 2.2, 4.7, 10, 22]), R = rnd([10, 22, 47, 100]), V = rnd([12, 24, 230]);
+    const f0 = 1 / (TAU * Math.sqrt(Lm / 1000 * Cu * 1e-6)), I = V / R;
+    return { topic: 'Ressonància', prompt: `Un circuit RLC sèrie té <b>R = ${R} Ω</b>, <b>L = ${Lm} mH</b> i <b>C = ${n(Cu)} µF</b>, i s’alimenta amb <b>${V} V</b>. Calcula la freqüència de ressonància i la intensitat a aquesta freqüència.`,
+      fields: [{ label: '<i>f</i><sub>0</sub>', unit: 'Hz', value: f0 }, { label: '<i>I</i>', unit: 'A', value: I }],
+      sol: [`<i>f</i><sub>0</sub> = 1 / (2π√(<i>LC</i>)) = 1 / (2π√(${fx(Lm / 1000)} · ${n(Cu)}·10<sup>−6</sup>)) = <b>${fx(f0)} Hz</b>`, `A la ressonància |<i>Z</i>| = <i>R</i>: <i>I</i> = ${V} / ${R} = <b>${fx(I)} A</b>`] }; },
+  () => { const V = 230, R = rnd([46, 92, 115, 230]); let XL = rnd([23, 46, 92, 115]), XC = rnd([46, 76.7, 115, 230]); if (XL === XC) XC = 230;
+    const IR = V / R, IL = V / XL, IC = V / XC, I = Math.hypot(IR, IL - IC), Z = V / I;
+    return { topic: 'RLC paral·lel', prompt: `Un circuit RLC paral·lel amb <b>R = ${R} Ω</b>, <b>X<sub>L</sub> = ${n(XL)} Ω</b> i <b>X<sub>C</sub> = ${n(XC)} Ω</b> es connecta a <b>230 V</b>. Calcula el corrent de cada branca, el corrent total i la impedància equivalent.`,
+      fields: [{ label: '<i>I</i><sub>R</sub>', unit: 'A', value: IR }, { label: '<i>I</i><sub>L</sub>', unit: 'A', value: IL }, { label: '<i>I</i><sub>C</sub>', unit: 'A', value: IC }, { label: '<i>I</i>', unit: 'A', value: I }, { label: '|<i>Z</i>|', unit: 'Ω', value: Z }],
+      sol: [`<i>I</i><sub>R</sub> = 230 / ${R} = <b>${fx(IR)} A</b> · <i>I</i><sub>L</sub> = 230 / ${n(XL)} = <b>${fx(IL)} A</b> · <i>I</i><sub>C</sub> = 230 / ${n(XC)} = <b>${fx(IC)} A</b>`, `<i>I</i> = √(${fx(IR)}<sup>2</sup> + (${fx(IL)} − ${fx(IC)})<sup>2</sup>) = <b>${fx(I)} A</b> → ${IL > IC ? 'inductiu' : 'capacitiu'}`, `|<i>Z</i>| = <i>V</i>/<i>I</i> = 230 / ${fx(I)} = <b>${fx(Z)} Ω</b>`] }; },
+  () => { const V = 230, R = rnd([46, 92, 115, 230]); let XL = rnd([46, 92, 115, 230]), XC = rnd([23, 46, 76.7, 115]); if (XL === XC) XC = 23;
+    const IR = V / R, IL = V / XL, IC = V / XC, I = Math.hypot(IR, IL - IC), P = V * IR, Q = V * (IL - IC), S = V * I, pf = P / S;
+    return { topic: 'RLC paral·lel · potències', prompt: `Un circuit RLC paral·lel amb <b>R = ${R} Ω</b>, <b>X<sub>L</sub> = ${n(XL)} Ω</b> i <b>X<sub>C</sub> = ${n(XC)} Ω</b> es connecta a <b>230 V</b>. Calcula la potència activa, la reactiva (amb signe: positiva si és inductiva), l’aparent i el factor de potència.`,
+      fields: [{ label: '<i>P</i>', unit: 'W', value: P }, { label: '<i>Q</i>', unit: 'VAr', value: Q }, { label: '<i>S</i>', unit: 'VA', value: S }, { label: 'cos φ', unit: '', value: pf }],
+      sol: [`<i>I</i><sub>R</sub> = ${fx(IR)} A · <i>I</i><sub>L</sub> = ${fx(IL)} A · <i>I</i><sub>C</sub> = ${fx(IC)} A · <i>I</i> = ${fx(I)} A`, `<i>P</i> = <i>V</i>·<i>I</i><sub>R</sub> = <b>${fx(P)} W</b>`, `<i>Q</i> = <i>V</i>·(<i>I</i><sub>L</sub> − <i>I</i><sub>C</sub>) = <b>${fx(Q)} VAr</b>`, `<i>S</i> = <i>V</i>·<i>I</i> = <b>${fx(S)} VA</b>`, `cos φ = <i>P</i>/<i>S</i> = <b>${fx(pf, 3)}</b> (${Q > 0 ? 'inductiu' : 'capacitiu'})`] }; },
+  () => { const R = rnd([5, 8, 10, 15, 20]), Lm = rnd([20, 50, 100, 150]), V = 230, XL = TAU * 50 * Lm / 1000, Z = Math.hypot(R, XL), I = V / Z, phi = Math.atan2(XL, R) * DEG;
+    return { topic: 'Bobina real', prompt: `Una bobina real té una resistència de <b>${R} Ω</b> i una inductància de <b>${Lm} mH</b>. Es connecta a <b>230 V, 50 Hz</b>. Calcula X<sub>L</sub>, |Z|, la intensitat i el desfasament.`,
+      fields: [{ label: '<i>X</i><sub>L</sub>', unit: 'Ω', value: XL }, { label: '|<i>Z</i>|', unit: 'Ω', value: Z }, { label: '<i>I</i>', unit: 'A', value: I }, { label: 'φ', unit: '°', value: phi, abs: 1 }],
+      sol: [`<i>X</i><sub>L</sub> = 2π · 50 · ${fx(Lm / 1000)} = <b>${fx(XL)} Ω</b>`, `|<i>Z</i>| = √(${R}<sup>2</sup> + ${fx(XL)}<sup>2</sup>) = <b>${fx(Z)} Ω</b>`, `<i>I</i> = 230 / ${fx(Z)} = <b>${fx(I)} A</b>`, `φ = tan<sup>−1</sup>(${fx(XL)} / ${R}) = <b>${fx(phi, 3)}°</b>: entre 0° i 90° per la resistència del fil`] }; },
 ];
 const qs = { filter: 'all', ok: 0, n: 0, lastConcept: -1 };
 const card = $('#q-card');
